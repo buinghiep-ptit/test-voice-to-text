@@ -1,0 +1,35 @@
+table {
+  border: solid 1px white;
+  overflow-wrap: break-word;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border: solid 1px white;
+  padding: 10px;
+}
+
+pre {
+  margin: 10px;
+  padding: 10px;
+  border-radius: 20px;
+}
+
+pre,
+code {
+  overflow-wrap: break-word;
+}
+
+img {
+  max-width: 500px;
+  max-height: 500px;
+}
+
+ol,
+ul,
+menu {
+  list-style: revert;
+  padding-left: 10px;
+}
