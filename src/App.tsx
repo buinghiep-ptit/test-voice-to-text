@@ -21,20 +21,25 @@ function App() {
   const chatBodyRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== "http://localhost:3000") return;
+    // const handleMessage = (event: MessageEvent) => {
+    //   console.log(event.data);
 
-      if (event.data.action === "init") {
-        const dataToken = event.data.token;
-        authUser(dataToken);
-      }
-    };
+    //   // if (event.origin !== "http://localhost:3000") return;
 
-    window.addEventListener("message", handleMessage);
+    //   if (event?.data?.action === "init") {
+    //     const dataToken = event.data.token;
+    //     if (dataToken) authUser(dataToken);
+    //   }
+    // };
 
-    return () => {
-      window.removeEventListener("message", handleMessage);
-    };
+    // window.addEventListener("message", handleMessage);
+
+    // return () => {
+    //   window.removeEventListener("message", handleMessage);
+    // };
+    authUser(
+      "eTBswDOmpSiYC8BE9h8NzLXwL1SKoq4kgjFn1lNTHXuzSeantqwzgYSKOayLPDy0d1jH+0LFOs2MG80bV1diYtzzxZG8Nx1EjvLkau+JntgjRY13VOiPbPUTdESme4rCiN78uDxDQQzMmldilI8XVkkVPHG8Grt1d45AMi3MBXFt44E4686QtcW5bGI11F6jDJlAxLws0+eS1gmDQ3YM5MRbiRk/F56gf3gFPx2DPm8lXFoFpapibD1juLx8SQ9F9WxXOEobeL8murMadeXR91x1ngpMATSOlw86FBT0loB1xYsmA47EpzcOTJV6c55aKxj7fPNeUhH79waw43zykQ=="
+    );
   }, []);
 
   const authUser = async (token: string) => {
