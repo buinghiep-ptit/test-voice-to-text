@@ -3,7 +3,7 @@ import React, { useState, useRef } from "react";
 const SpeechToText = () => {
   const [isListening, setIsListening] = useState(false);
   const [text, setText] = useState("");
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef(null);
 
   const handleToggleListening = () => {
     if (!recognitionRef.current) {
