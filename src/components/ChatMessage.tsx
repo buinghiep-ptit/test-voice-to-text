@@ -1,5 +1,4 @@
 import Markdown from "react-markdown";
-import { IHistory } from "../App";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -9,6 +8,7 @@ import { preprocessLaTeX } from "../utils/latex";
 import "./message.css";
 import moment from "moment";
 import DotLoading from "./DotLoading";
+import { IHistory } from "../pages/Chat";
 
 const ChatMessage = ({ chat }: { chat: IHistory }) => {
   return (

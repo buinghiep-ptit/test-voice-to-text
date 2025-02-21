@@ -26,7 +26,7 @@ const Typewriter = ({ text, speed = 100, loop = false }: Props) => {
   }, [index, text, speed, loop]);
 
   return (
-    <span className="typewriter">
+    <span className="text-sm text-white whitespace-nowrap">
       {displayedText}
       {/* <span className="cursor">|</span> */}
     </span>

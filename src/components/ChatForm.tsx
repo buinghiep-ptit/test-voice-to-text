@@ -1,10 +1,16 @@
 import { useRef } from "react";
-import { IHistory } from "../App";
 
 type Props = {
   setChatHistory: React.Dispatch<React.SetStateAction<IHistory[]>>;
   generateBotResponse: (h: IHistory) => void;
 };
+
+export interface IHistory {
+  role?: string;
+  content?: string;
+  isError?: boolean;
+  dateCreated?: string;
+}
 
 const ChatForm = ({ setChatHistory, generateBotResponse }: Props) => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
