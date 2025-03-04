@@ -33,15 +33,15 @@ function Bubble() {
   return (
     <div className="chat-toggle bg-transparent flex items-start justify-end overflow-hidden gap-2 cursor-pointer">
       <div
-        className="greeting bg-[#0F62FE] py-2.5! px-3! rounded-3xl"
+        className="greeting bg-[#0F62FE] py-2! px-3! rounded-3xl"
         onMouseDown={openChat}
       >
         <Typewriter text="Chang luôn ở đây để giúp bạn bạn nhé" speed={80} />
       </div>
       <img
-        src="/assets/images/chatbot-icon.svg"
+        src="/assets/images/bot-icon-blue-unscreen.gif"
         alt="ic"
-        className="w-20 h-20 cursor-pointer"
+        className="w-24 h-24 cursor-pointer object-contain"
         onClick={openChat}
       />
     </div>
