@@ -26,7 +26,7 @@ function Bubble() {
         target: "chat-frame",
         isOpen: true,
       },
-      "http://localhost:3000" // *
+      "*", // http://localhost:3000
     );
   };
 
