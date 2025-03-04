@@ -31,7 +31,7 @@ function Chat() {
         target: "bubble-frame",
         isOpen: false,
       },
-      "http://localhost:3000" // *
+      "*",
     );
   };
 
@@ -42,13 +42,15 @@ function Chat() {
         data: "Data from chat-frame",
         target: "bubble-frame",
       },
-      "http://localhost:3000" // *
+      "*",
     );
   }, []);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== "http://localhost:3000") return;
+      console.log("event.origin", event.origin);
+
+      // if (event.origin !== "http://localhost:3000") return;
 
       if (event.data.type === "TOGGLE_CHAT") {
         window.parent.postMessage(
@@ -57,7 +59,7 @@ function Chat() {
             data: "Data from chat-frame",
             target: "bubble-frame",
           },
-          "http://localhost:3000"
+          "*",
         );
         setShowChatbot(true);
       }
@@ -102,7 +104,7 @@ function Chat() {
           body: JSON.stringify({
             data: token,
           }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -131,7 +133,7 @@ function Chat() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${userToken}`,
           },
-        }
+        },
       );
       const data = await response.json();
       setLoading(false);
@@ -169,7 +171,7 @@ function Chat() {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_APP_URL}/api/sdk/foxpro/chat`,
-        requestOptions
+        requestOptions,
       );
 
       const data = await response.json();
