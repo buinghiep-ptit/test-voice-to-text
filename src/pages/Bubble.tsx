@@ -31,12 +31,12 @@ function Bubble() {
   };
 
   return (
-    <div className="chat-toggle bg-transparent flex items-start justify-end overflow-hidden gap-2 cursor-pointer">
+    <div className="chat-toggle bg-transparent flex items-start justify-end overflow-hidden gap-1 cursor-pointer">
       <div
-        className="greeting bg-[#0F62FE] py-2! px-3! rounded-3xl"
+        className="greeting bg-[#0F62FE] py-2! px-3! rounded-3xl rounded-br-none"
         onMouseDown={openChat}
       >
-        <Typewriter text="Chang luôn ở đây để giúp bạn bạn nhé" speed={80} />
+        <Typewriter text="Chang luôn ở đây để giúp bạn bạn nhé" speed={50} />
       </div>
       <img
         src="/assets/images/bot-icon-blue-unscreen.gif"

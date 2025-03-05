@@ -10,6 +10,7 @@ export interface IHistory {
   content?: string;
   isError?: boolean;
   dateCreated?: string;
+  isNewChat?: boolean;
 }
 
 function Chat() {
@@ -48,8 +49,6 @@ function Chat() {
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      console.log("event.origin", event.origin);
-
       // if (event.origin !== "http://localhost:3000") return;
 
       if (event.data.type === "TOGGLE_CHAT") {
@@ -142,18 +141,22 @@ function Chat() {
         throw new Error(data.error.message || "Something went wrong!");
 
       setChatHistory(data.items.reverse());
-    } catch (e: any) {
+    } catch (error) {
       setLoading(false);
-
-      console.log("error");
+      console.log(error);
     }
   };
 
   const generateBotResponse = async (history: IHistory) => {
     const updateHistory = (text: string, isError = false) => {
       setChatHistory((prev) => [
-        ...prev.filter((msg) => msg.content !== "Thinking..."),
-        { role: "Ai", content: text, isError },
+        ...prev
+          .filter((msg) => msg.content !== "Thinking...")
+          .map((msg) => ({
+            ...msg,
+            isNewChat: false,
+          })),
+        { role: "Ai", content: text, isError, isNewChat: true },
       ]);
     };
 
@@ -175,17 +178,28 @@ function Chat() {
       );
 
       const data = await response.json();
+      if (!response.ok)
+        throw new Error(data.error.message || "Something went wrong!");
       updateHistory(data.text);
     } catch (error: any) {
       updateHistory(error.message, true);
+      console.log(error);
+    }
+  };
+
+  const scrollToBottom = () => {
+    if (chatBodyRef.current) {
+      requestAnimationFrame(() => {
+        chatBodyRef.current?.scrollTo({
+          top: chatBodyRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      });
     }
   };
 
   useEffect(() => {
-    chatBodyRef.current?.scrollTo({
-      top: chatBodyRef.current.scrollHeight,
-      behavior: "smooth",
-    });
+    scrollToBottom();
   }, [chatHistory]);
 
   return (
@@ -211,7 +225,7 @@ function Chat() {
       )}
 
       <div ref={chatBodyRef} className="chat-body">
-        {!chatHistory.length && (
+        {!chatHistory.length && !loading && (
           <div className="item-message bot-message">
             <img
               src="/assets/images/chang-avatar.jpg"
@@ -219,15 +233,19 @@ function Chat() {
               className="w-8 h-8 rounded-full object-cover"
             />
             <p className="message-text">
-              Hi Nghiệp 😄
+              Hi 😄,
               <br />
-              Chang có thể giúp gì cho Nghiệp?
+              Chang có thể giúp gì cho bạn?
             </p>
           </div>
         )}
 
         {chatHistory.map((chat, index) => (
-          <ChatMessage key={index} chat={chat} />
+          <ChatMessage
+            key={index}
+            chat={chat}
+            onTypeProgress={scrollToBottom}
+          />
         ))}
       </div>
 

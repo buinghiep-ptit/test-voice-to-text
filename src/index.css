@@ -142,7 +142,7 @@ body #root {
 
 .chat-body .item-message .message-text {
   padding: 0.625rem 0.75rem;
-  max-width: 80%;
+  max-width: 90%;
   width: fit-content;
   word-wrap: break-word;
   white-space: pre-line;

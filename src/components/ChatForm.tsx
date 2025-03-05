@@ -25,13 +25,13 @@ const ChatForm = ({ setChatHistory, generateBotResponse }: Props) => {
     }
 
     setChatHistory((history: IHistory[]) => [
-      ...history,
+      ...[...history.map((h) => ({ ...h, isNewChat: false }))],
       { role: "Human", content: userMessage },
     ]);
 
     setTimeout(() => {
       setChatHistory((history: IHistory[]) => [
-        ...history,
+        ...[...history.map((h) => ({ ...h, isNewChat: false }))],
         { role: "Ai", content: "Thinking..." },
       ]);
 
