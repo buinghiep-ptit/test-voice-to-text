@@ -142,13 +142,19 @@ body #root {
 
 .chat-body .item-message .message-text {
   padding: 0.625rem 0.75rem;
-  max-width: 90%;
   width: fit-content;
   word-wrap: break-word;
-  white-space: pre-line;
+  /* white-space: pre-line; */
+  max-width: 90%;
   font-size: 0.875rem;
   background: rgb(244, 244, 245);
   color: #111928;
+}
+
+.chat-body .item-message .bot-message {
+  display: flex;
+  flex-direction: column;
+  max-width: 90%;
 }
 
 .chat-body .bot-message .message-text {
@@ -166,6 +172,7 @@ body #root {
   border-radius: 16px 16px 0px 16px;
   background: rgb(32, 59, 220);
   color: #fff;
+  max-width: 80%;
 }
 
 .chat-body .item-message.error .message-text {
