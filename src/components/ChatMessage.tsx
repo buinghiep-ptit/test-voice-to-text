@@ -19,6 +19,10 @@ interface ChatMessageProps {
 
 const ChatMessage = ({ chat, onTypeProgress }: ChatMessageProps) => {
   const [displayedText, setDisplayedText] = useState("");
+  const isToday = moment(chat.dateCreated || new Date()).isSame(
+    moment(),
+    "day",
+  );
 
   useEffect(() => {
     // Reset state when chat content changes
@@ -83,9 +87,11 @@ const ChatMessage = ({ chat, onTypeProgress }: ChatMessageProps) => {
           <div className="time-message">
             <span style={{ fontWeight: 600 }}>Chang </span>{" "}
             <span style={{ color: "#6B7280" }}>
-              {chat?.dateCreated &&
-                moment(chat?.dateCreated).format("DD/MM/YYYY") + " lúc "}
-              {moment(chat?.dateCreated || new Date()).format("HH:mm")}
+              {isToday
+                ? moment(chat?.dateCreated || new Date()).format("HH:mm")
+                : moment(chat?.dateCreated).format("DD/MM/YYYY") +
+                  " lúc " +
+                  moment(chat?.dateCreated || new Date()).format("HH:mm")}
             </span>
           </div>
         )}
