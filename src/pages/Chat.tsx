@@ -94,7 +94,7 @@ function Chat() {
   const authUser = async (token: string) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_AUTH_URL}/foxskill/api/sdk/authenticate`,
+        `${import.meta.env.VITE_API_APP_URL}/api/sdk/authenticate/v2`,
         {
           method: "POST",
           headers: {
@@ -125,7 +125,7 @@ function Chat() {
       setLoading(true);
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_APP_URL}/api/sdk/foxpro/chat-history`,
+        `${import.meta.env.VITE_API_APP_URL}/api/sdk/chat-history`,
         {
           method: "GET",
           headers: {
@@ -173,7 +173,7 @@ function Chat() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_APP_URL}/api/sdk/foxpro/chat`,
+        `${import.meta.env.VITE_API_APP_URL}/api/sdk/chat`,
         requestOptions,
       );
 
