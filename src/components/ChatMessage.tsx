@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { motion } from "framer-motion";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -5,7 +6,7 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
 import { preprocessLaTeX } from "../utils/latex";
-// import "katex/dist/katex.min.css";
+import "katex/dist/katex.min.css";
 import "./message.css";
 import moment from "moment";
 import DotLoading from "./DotLoading";
@@ -54,6 +55,10 @@ const ChatMessage = ({ chat, onTypeProgress }: ChatMessageProps) => {
       setDisplayedText(chat.content || "");
     }
   }, [chat.content, chat.isNewChat, chat.role, onTypeProgress]);
+
+  const replaceLiteralNewlines = (content: string) => {
+    return content.replace(/\n\n/g, "\n\n&nbsp;\n\n"); // Thêm khoảng trắng để Markdown nhận diện đúng
+  };
 
   const MessageWrapper =
     chat.role === "Ai" && chat.isNewChat ? motion.div : "div";
@@ -113,8 +118,26 @@ const ChatMessage = ({ chat, onTypeProgress }: ChatMessageProps) => {
                   [remarkMath, { singleDollarTextMath: false }],
                 ]}
                 rehypePlugins={[rehypeRaw, rehypeKatex]}
+                components={{
+                  a: ({ node, ...props }) => {
+                    const isInIframe =
+                      typeof window !== "undefined" &&
+                      window.self !== window.top; // Kiểm tra nếu trong iframe
+
+                    return (
+                      <a
+                        {...props}
+                        target={isInIframe ? "_blank" : "_self"}
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline hover:text-blue-800 transition-all"
+                      >
+                        {props.children}
+                      </a>
+                    );
+                  },
+                }}
               >
-                {preprocessLaTeX(chat.content || "")}
+                {preprocessLaTeX(replaceLiteralNewlines(chat.content || ""))}
               </Markdown>
             ) : (
               <Markdown
@@ -123,8 +146,26 @@ const ChatMessage = ({ chat, onTypeProgress }: ChatMessageProps) => {
                   [remarkMath, { singleDollarTextMath: false }],
                 ]}
                 rehypePlugins={[rehypeRaw, rehypeKatex]}
+                components={{
+                  a: ({ node, ...props }) => {
+                    const isInIframe =
+                      typeof window !== "undefined" &&
+                      window.self !== window.top; // Kiểm tra nếu trong iframe
+
+                    return (
+                      <a
+                        {...props}
+                        target={isInIframe ? "_blank" : "_self"}
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline hover:text-blue-800 transition-all"
+                      >
+                        {props.children}
+                      </a>
+                    );
+                  },
+                }}
               >
-                {preprocessLaTeX(displayedText)}
+                {preprocessLaTeX(replaceLiteralNewlines(displayedText))}
               </Markdown>
             )}
           </div>
