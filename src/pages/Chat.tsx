@@ -206,7 +206,7 @@ function Chat() {
     <div className="chatbot-popup">
       <div className="chat-header">
         <div className="header-info">
-          <h2 className="logo-text">Iam Chang</h2>
+          <h2 className="logo-text">Chang</h2>
         </div>
 
         <button className="btn-icon cursor-pointer" onClick={closeChat}>
