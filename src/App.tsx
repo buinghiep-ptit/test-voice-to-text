@@ -8,7 +8,7 @@ const Chat = lazy(() => import("./pages/Chat"));
 
 function App() {
   return (
-    <Router>
+    <Router basename="/ai-agent/sdk">
       <Suspense fallback={<></>}>
         <Routes>
           <Route path="/bubble" element={<Bubble />} />
