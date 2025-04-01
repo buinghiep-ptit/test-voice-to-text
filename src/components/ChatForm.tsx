@@ -73,7 +73,7 @@ const ChatForm = ({ setChatHistory, generateBotResponse }: Props) => {
         <div className="list-btns">
           <button className="btn-action" type="submit">
             <img
-              src="/assets/images/send-icon.svg"
+              src="/ai-agent/sdk/assets/images/send-icon.svg"
               alt="ic"
               className="w-6 h-6"
             />

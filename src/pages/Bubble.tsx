@@ -39,7 +39,7 @@ function Bubble() {
         <Typewriter text="Chang luôn ở đây để giúp bạn bạn nhé" speed={50} />
       </div>
       <img
-        src="/assets/images/bot-icon-blue-unscreen.gif"
+        src="/ai-agent/sdk/assets/images/bot-icon-blue-unscreen.gif"
         alt="ic"
         className="w-24 h-24 cursor-pointer object-contain"
         onClick={openChat}

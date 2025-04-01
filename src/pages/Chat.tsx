@@ -211,7 +211,7 @@ function Chat() {
 
         <button className="btn-icon cursor-pointer" onClick={closeChat}>
           <img
-            src="/assets/images/minimize_white.svg"
+            src="/ai-agent/sdk/assets/images/minimize_white.svg"
             alt="ic"
             className="w-6"
           />
@@ -228,7 +228,7 @@ function Chat() {
         {!chatHistory.length && !loading && (
           <div className="item-message bot-message">
             <img
-              src="/assets/images/chang-avatar.jpg"
+              src="/ai-agent/sdk/assets/images/chang-avatar.jpg"
               alt="ic"
               className="w-8 h-8 rounded-full object-cover"
             />
