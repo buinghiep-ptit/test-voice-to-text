@@ -19,7 +19,7 @@ function Bubble() {
   useEffect(() => {
     setTimeout(() => {
       setIsShowSwayHi(false);
-    }, 5000);
+    }, 8000);
   }, []);
 
   return (
