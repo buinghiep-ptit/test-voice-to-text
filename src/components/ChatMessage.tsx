@@ -135,6 +135,24 @@ const ChatMessage = ({ chat, onTypeProgress }: ChatMessageProps) => {
                       </a>
                     );
                   },
+                  img: ({ node, ...props }) => {
+                    // Tạo một handler để mở ảnh trong tab mới khi click
+                    const handleImageClick = (src: string) => {
+                      window.open(src, "_blank", "noopener,noreferrer");
+                    };
+
+                    return (
+                      <img
+                        {...props}
+                        className="cursor-pointer max-w-full hover:opacity-90 transition-opacity"
+                        onClick={() => handleImageClick(props.src || "")}
+                        style={{ maxWidth: "100%" }}
+                        title={`Click để xem ảnh đầy đủ trong tab mới (${
+                          props.alt || "Ảnh"
+                        })`}
+                      />
+                    );
+                  },
                 }}
               >
                 {preprocessLaTeX(replaceLiteralNewlines(chat.content || ""))}
@@ -161,6 +179,25 @@ const ChatMessage = ({ chat, onTypeProgress }: ChatMessageProps) => {
                       >
                         {props.children}
                       </a>
+                    );
+                  },
+
+                  img: ({ node, ...props }) => {
+                    // Tạo một handler để mở ảnh trong tab mới khi click
+                    const handleImageClick = (src: string) => {
+                      window.open(src, "_blank", "noopener,noreferrer");
+                    };
+
+                    return (
+                      <img
+                        {...props}
+                        className="cursor-pointer max-w-full hover:opacity-90 transition-opacity"
+                        onClick={() => handleImageClick(props.src || "")}
+                        style={{ maxWidth: "100%" }}
+                        title={`Click để xem ảnh đầy đủ trong tab mới (${
+                          props.alt || "Ảnh"
+                        })`}
+                      />
                     );
                   },
                 }}
