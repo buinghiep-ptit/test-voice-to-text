@@ -32,8 +32,9 @@ function Chat() {
         target: "bubble-frame",
         isOpen: false,
       },
-      "*",
+      "*"
     );
+    setShowChatbot(false);
   };
 
   useEffect(() => {
@@ -43,7 +44,7 @@ function Chat() {
         data: "Data from chat-frame",
         target: "bubble-frame",
       },
-      "*",
+      "*"
     );
   }, []);
 
@@ -52,13 +53,15 @@ function Chat() {
       // if (event.origin !== "http://localhost:3000") return;
 
       if (event.data.type === "TOGGLE_CHAT") {
+        console.log("TOGGLE_CHAT");
+
         window.parent.postMessage(
           {
             type: "message",
             data: "Data from chat-frame",
             target: "bubble-frame",
           },
-          "*",
+          "*"
         );
         setShowChatbot(true);
       }
@@ -103,7 +106,7 @@ function Chat() {
           body: JSON.stringify({
             data: token,
           }),
-        },
+        }
       );
 
       const data = await response.json();
@@ -116,6 +119,8 @@ function Chat() {
   };
 
   useEffect(() => {
+    console.log(showChatbot, !!userToken);
+
     if (!showChatbot || !userToken) return;
     getChatHistory(userToken);
   }, [showChatbot, userToken]);
@@ -132,7 +137,7 @@ function Chat() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${userToken}`,
           },
-        },
+        }
       );
       const data = await response.json();
       setLoading(false);
@@ -174,7 +179,7 @@ function Chat() {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_APP_URL}/api/sdk/chat`,
-        requestOptions,
+        requestOptions
       );
 
       const data = await response.json();
