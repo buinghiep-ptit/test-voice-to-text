@@ -16,7 +16,6 @@ export interface IHistory {
 function Chat() {
   const [searchParams] = useSearchParams();
   const [chatHistory, setChatHistory] = useState<IHistory[]>([]);
-  const [showChatbot, setShowChatbot] = useState(false);
   const [userToken, setUserToken] = useState("");
   const [loading, setLoading] = useState(false);
   const chatBodyRef = useRef<HTMLInputElement>(null);
@@ -34,7 +33,6 @@ function Chat() {
       },
       "*"
     );
-    setShowChatbot(false);
   };
 
   useEffect(() => {
@@ -53,8 +51,6 @@ function Chat() {
       // if (event.origin !== "http://localhost:3000") return;
 
       if (event.data.type === "TOGGLE_CHAT") {
-        console.log("TOGGLE_CHAT");
-
         window.parent.postMessage(
           {
             type: "message",
@@ -63,7 +59,6 @@ function Chat() {
           },
           "*"
         );
-        setShowChatbot(true);
       }
     };
 
@@ -119,11 +114,9 @@ function Chat() {
   };
 
   useEffect(() => {
-    console.log(showChatbot, !!userToken);
-
-    if (!showChatbot || !userToken) return;
+    if (!userToken) return;
     getChatHistory(userToken);
-  }, [showChatbot, userToken]);
+  }, [userToken]);
 
   const getChatHistory = async (userToken: string) => {
     try {
