@@ -12,7 +12,7 @@ function Bubble() {
         target: "chat-frame",
         isOpen: true,
       },
-      "*", // http://localhost:3000
+      "*" // http://localhost:3000
     );
   };
 
@@ -23,10 +23,10 @@ function Bubble() {
   }, []);
 
   return (
-    <div className="chat-toggle bg-transparent flex items-start justify-end overflow-hidden gap-1 cursor-pointer">
+    <div className="chat-toggle bg-transparent flex items-start justify-end overflow-hidden gap-1 pointer-events-none">
       {isShowSayHi && (
         <div
-          className="greeting bg-[#0F62FE] py-2! px-3! rounded-3xl rounded-br-none"
+          className="greeting bg-[#0F62FE] py-2! px-3! rounded-3xl rounded-br-none pointer-events-auto! cursor-pointer"
           onMouseDown={openChat}
         >
           <Typewriter text="Chang luôn ở đây để giúp bạn bạn nhé" speed={50} />
@@ -35,7 +35,7 @@ function Bubble() {
       <img
         src="/ai-agent/sdk/assets/images/bot-icon-blue-unscreen.gif"
         alt="ic"
-        className="w-24 h-24 cursor-pointer object-contain"
+        className="w-20 h-20 object-contain pointer-events-auto! cursor-pointer "
         onClick={openChat}
       />
     </div>
