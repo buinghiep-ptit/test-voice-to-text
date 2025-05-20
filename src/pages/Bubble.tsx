@@ -29,7 +29,7 @@ function Bubble() {
           className="greeting bg-[#0F62FE] py-2! px-3! rounded-3xl rounded-br-none pointer-events-auto! cursor-pointer"
           onMouseDown={openChat}
         >
-          <Typewriter text="Chang luôn ở đây để giúp bạn bạn nhé" speed={50} />
+          <Typewriter text="Mình luôn ở đây để giúp bạn bạn nhé" speed={50} />
         </div>
       )}
       <img

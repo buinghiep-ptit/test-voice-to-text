@@ -17,10 +17,15 @@ function Chat() {
   const [searchParams] = useSearchParams();
   const [chatHistory, setChatHistory] = useState<IHistory[]>([]);
   const [userToken, setUserToken] = useState("");
+  const [botInfo, setBotInfo] = useState({
+    name: "Chang",
+    avatar: "/ai-agent/sdk/assets/images/chang-avatar.jpg",
+  });
   const [loading, setLoading] = useState(false);
   const chatBodyRef = useRef<HTMLInputElement>(null);
 
   const tenantId = searchParams.get("tenant_id");
+  const isCustomBotInfo = searchParams.get("isCustomBotInfo");
   const decodeToken = tenantId ? decodeURIComponent(tenantId) : "";
 
   const closeChat = () => {
@@ -69,22 +74,6 @@ function Chat() {
   }, []);
 
   useEffect(() => {
-    // const handleMessage = (event: MessageEvent) => {
-    //   console.log(event.data);
-
-    //   // if (event.origin !== "http://localhost:3000") return;
-
-    //   if (event?.data?.action === "init") {
-    //     const dataToken = event.data.token;
-    //     if (dataToken) authUser(dataToken);
-    //   }
-    // };
-
-    // window.addEventListener("message", handleMessage);
-
-    // return () => {
-    //   window.removeEventListener("message", handleMessage);
-    // };
     if (!decodeToken) return;
     authUser(decodeToken);
   }, [decodeToken]);
@@ -108,6 +97,33 @@ function Chat() {
       if (!response.ok)
         throw new Error(data.error.message || "Something went wrong!");
       setUserToken(data.accessToken);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (!userToken || !isCustomBotInfo) return;
+    getBotInfo(userToken);
+  }, [userToken, isCustomBotInfo]);
+
+  const getBotInfo = async (token: string) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_APP_URL}/api/sdk/agent-info`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(data.error.message || "Something went wrong!");
+      setBotInfo(data);
     } catch (error) {
       console.log(error);
     }
@@ -204,7 +220,7 @@ function Chat() {
     <div className="chatbot-popup">
       <div className="chat-header">
         <div className="header-info">
-          <h2 className="logo-text">Chang</h2>
+          <h2 className="logo-text">{botInfo?.name || "Chang"}</h2>
         </div>
 
         <button className="btn-icon cursor-pointer" onClick={closeChat}>
@@ -226,14 +242,14 @@ function Chat() {
         {!chatHistory.length && !loading && (
           <div className="item-message bot-message">
             <img
-              src="/ai-agent/sdk/assets/images/chang-avatar.jpg"
+              src={botInfo?.avatar}
               alt="ic"
               className="w-8 h-8 rounded-full object-cover"
             />
             <p className="message-text">
               Hi 😄,
               <br />
-              Chang có thể giúp gì cho bạn?
+              {botInfo?.name} có thể giúp gì cho bạn?
             </p>
           </div>
         )}

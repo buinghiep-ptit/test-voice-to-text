@@ -64,7 +64,7 @@ const ChatForm = ({ setChatHistory, generateBotResponse }: Props) => {
       <form action="#" className="" onSubmit={handleFormSubmit}>
         <textarea
           ref={inputRef}
-          placeholder="Trò chuyện cùng chang nhé..."
+          placeholder="Trò chuyện cùng mình nhé..."
           className="outline-none w-full resize-none"
           onKeyDown={handleKeyDown}
           onChange={handleInputChange}
