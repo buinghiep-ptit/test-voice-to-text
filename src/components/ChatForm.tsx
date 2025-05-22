@@ -39,7 +39,7 @@ const ChatForm = ({ setChatHistory, generateBotResponse }: Props) => {
     }, 600);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleFormSubmit();
@@ -66,7 +66,7 @@ const ChatForm = ({ setChatHistory, generateBotResponse }: Props) => {
           ref={inputRef}
           placeholder="Trò chuyện cùng mình nhé..."
           className="outline-none w-full resize-none"
-          onKeyDown={handleKeyDown}
+          onKeyUp={handleKeyUp}
           onChange={handleInputChange}
           required
         ></textarea>
