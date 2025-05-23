@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 type Props = {
   setChatHistory: React.Dispatch<React.SetStateAction<IHistory[]>>;
@@ -14,6 +14,16 @@ export interface IHistory {
 
 const ChatForm = ({ setChatHistory, generateBotResponse }: Props) => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const [isComposing, setIsComposing] = useState(false);
+
+  const handleCompositionStart = () => {
+    setIsComposing(true);
+  };
+
+  const handleCompositionEnd = () => {
+    setIsComposing(false);
+  };
 
   const handleFormSubmit = (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault();
@@ -39,10 +49,12 @@ const ChatForm = ({ setChatHistory, generateBotResponse }: Props) => {
     }, 600);
   };
 
-  const handleKeyUp = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleFormSubmit();
+      if (!isComposing) {
+        handleFormSubmit();
+      }
     }
   };
 
@@ -66,8 +78,10 @@ const ChatForm = ({ setChatHistory, generateBotResponse }: Props) => {
           ref={inputRef}
           placeholder="Trò chuyện cùng mình nhé..."
           className="outline-none w-full resize-none"
-          onKeyUp={handleKeyUp}
+          onKeyDown={handleKeyDown}
           onChange={handleInputChange}
+          onCompositionStart={handleCompositionStart}
+          onCompositionEnd={handleCompositionEnd}
           required
         ></textarea>
         <div className="list-btns">
