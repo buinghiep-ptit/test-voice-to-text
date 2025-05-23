@@ -256,6 +256,7 @@ function Chat() {
 
         {chatHistory.map((chat, index) => (
           <ChatMessage
+            botInfo={botInfo}
             key={index}
             chat={chat}
             onTypeProgress={scrollToBottom}

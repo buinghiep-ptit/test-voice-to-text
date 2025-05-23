@@ -16,13 +16,17 @@ import { useEffect, useState } from "react";
 interface ChatMessageProps {
   chat: IHistory;
   onTypeProgress?: () => void;
+  botInfo?: {
+    name: string;
+    avatar: string;
+  };
 }
 
-const ChatMessage = ({ chat, onTypeProgress }: ChatMessageProps) => {
+const ChatMessage = ({ chat, onTypeProgress, botInfo }: ChatMessageProps) => {
   const [displayedText, setDisplayedText] = useState("");
   const isToday = moment(chat.dateCreated || new Date()).isSame(
     moment(),
-    "day",
+    "day"
   );
 
   useEffect(() => {
@@ -78,7 +82,7 @@ const ChatMessage = ({ chat, onTypeProgress }: ChatMessageProps) => {
     >
       {chat.role === "Ai" && (
         <img
-          src="/ai-agent/sdk/assets/images/chang-avatar.jpg"
+          src={botInfo?.avatar}
           alt="ic"
           className="w-8 h-8 rounded-full object-cover"
         />
@@ -90,7 +94,7 @@ const ChatMessage = ({ chat, onTypeProgress }: ChatMessageProps) => {
       >
         {chat.role == "Ai" && chat.content !== "Thinking..." && (
           <div className="time-message">
-            <span style={{ fontWeight: 600 }}>Chang </span>{" "}
+            <span style={{ fontWeight: 600 }}>{botInfo?.name}</span>{" "}
             <span style={{ color: "#6B7280" }}>
               {isToday
                 ? moment(chat?.dateCreated || new Date()).format("HH:mm")
