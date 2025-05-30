@@ -24,9 +24,27 @@ function Chat() {
   const [loading, setLoading] = useState(false);
   const chatBodyRef = useRef<HTMLInputElement>(null);
 
+  const isAllowExpandBot = searchParams.get("isAllowExpandBot");
   const tenantId = searchParams.get("tenant_id");
   const isCustomBotInfo = searchParams.get("isCustomBotInfo");
   const decodeToken = tenantId ? decodeURIComponent(tenantId) : "";
+
+  const [isMaximized, setIsMaximized] = useState(false);
+
+  const toggleMaximize = () => {
+    const newState = !isMaximized;
+    setIsMaximized(newState);
+    if (window.parent) {
+      window.parent.postMessage(
+        {
+          type: newState ? "MAXIMIZE_CHAT" : "MINIMIZE_CHAT",
+          data: "Data from chat-frame",
+          target: "chat-frame",
+        },
+        "*"
+      );
+    }
+  };
 
   const closeChat = () => {
     window.parent.postMessage(
@@ -223,13 +241,35 @@ function Chat() {
           <h2 className="logo-text">{botInfo?.name || "Chang"}</h2>
         </div>
 
-        <button className="btn-icon cursor-pointer" onClick={closeChat}>
-          <img
-            src="/ai-agent/sdk/assets/images/minimize_white.svg"
-            alt="ic"
-            className="w-6"
-          />
-        </button>
+        <div className="flex items-center gap-2">
+          {isAllowExpandBot && (
+            <button
+              className="btn-icon cursor-pointer"
+              onClick={toggleMaximize}
+            >
+              <img
+                src={
+                  !isMaximized
+                    ? "/ai-agent/sdk/assets/images/arrows-big.png"
+                    : "/ai-agent/sdk/assets/images/arrows-small.png"
+                }
+                alt={!isMaximized ? "Maximize" : "Minimize"}
+                className="w-6"
+                style={{
+                  transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                }}
+              />
+            </button>
+          )}
+
+          <button className="btn-icon cursor-pointer" onClick={closeChat}>
+            <img
+              src="/ai-agent/sdk/assets/images/minimize_white.svg"
+              alt="ic"
+              className="w-6"
+            />
+          </button>
+        </div>
       </div>
 
       {loading && (
