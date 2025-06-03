@@ -4,6 +4,7 @@ import ChatForm from "../components/ChatForm";
 import ChatMessage from "../components/ChatMessage";
 import DotLoading from "../components/DotLoading";
 import { useSearchParams } from "react-router-dom";
+import ClearHistoryDialog from "../components/ClearHistoryDialog";
 
 export interface IHistory {
   role?: string;
@@ -30,6 +31,8 @@ function Chat() {
   const decodeToken = tenantId ? decodeURIComponent(tenantId) : "";
 
   const [isMaximized, setIsMaximized] = useState(false);
+  const [isShowClearHistoryDialog, setIsShowClearHistoryDialog] =
+    useState(false);
 
   const toggleMaximize = () => {
     const newState = !isMaximized;
@@ -152,6 +155,27 @@ function Chat() {
     getChatHistory(userToken);
   }, [userToken]);
 
+  const clearChatHistory = async (userToken: string) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_APP_URL}/api/sdk/chat-history`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(data.error.message || "Something went wrong!");
+      setChatHistory([]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const getChatHistory = async (userToken: string) => {
     try {
       setLoading(true);
@@ -234,6 +258,20 @@ function Chat() {
     scrollToBottom();
   }, [chatHistory]);
 
+  const handleClearClick = () => {
+    if (chatHistory.length === 0) return;
+    setIsShowClearHistoryDialog(true);
+  };
+
+  const confirmClear = () => {
+    clearChatHistory(userToken);
+    setIsShowClearHistoryDialog(false);
+  };
+
+  const cancelClear = () => {
+    setIsShowClearHistoryDialog(false);
+  };
+
   return (
     <div className="chatbot-popup">
       <div className="chat-header">
@@ -282,7 +320,10 @@ function Chat() {
         {!chatHistory.length && !loading && (
           <div className="item-message bot-message">
             <img
-              src={botInfo?.avatar}
+              src={
+                botInfo?.avatar ||
+                "/ai-agent/sdk/assets/images/chang-avatar.jpg"
+              }
               alt="ic"
               className="w-8 h-8 rounded-full object-cover"
             />
@@ -309,7 +350,23 @@ function Chat() {
           setChatHistory={setChatHistory}
           generateBotResponse={generateBotResponse}
         />
+        <button onClick={handleClearClick} className="clear-btn cursor-pointer">
+          <img
+            src="/ai-agent/sdk/assets/images/clear-icon.png"
+            alt="ic"
+            className={`w-6 ${
+              chatHistory.length > 0 ? "" : "cursor-not-allowed"
+            }`}
+          />
+        </button>
       </div>
+
+      {isShowClearHistoryDialog && (
+        <ClearHistoryDialog
+          cancelClear={cancelClear}
+          confirmClear={confirmClear}
+        />
+      )}
     </div>
   );
 }

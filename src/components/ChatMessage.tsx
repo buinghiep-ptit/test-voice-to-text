@@ -82,7 +82,7 @@ const ChatMessage = ({ chat, onTypeProgress, botInfo }: ChatMessageProps) => {
     >
       {chat.role === "Ai" && (
         <img
-          src={botInfo?.avatar}
+          src={botInfo?.avatar || "/ai-agent/sdk/assets/images/chang-avatar.jpg"}
           alt="ic"
           className="w-8 h-8 rounded-full object-cover"
         />
