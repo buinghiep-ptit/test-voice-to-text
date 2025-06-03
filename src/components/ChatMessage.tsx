@@ -11,7 +11,7 @@ import "./message.css";
 import moment from "moment";
 import DotLoading from "./DotLoading";
 import { IHistory } from "../pages/Chat";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 interface ChatMessageProps {
   chat: IHistory;
@@ -216,4 +216,17 @@ const ChatMessage = ({ chat, onTypeProgress, botInfo }: ChatMessageProps) => {
   );
 };
 
-export default ChatMessage;
+// Using React.memo to prevent unnecessary re-renders
+const MemoizedChatMessage = React.memo(ChatMessage, (prevProps, nextProps) => {
+  // Only re-render if these props change
+  return (
+    prevProps.chat.role === nextProps.chat.role &&
+    prevProps.chat.content === nextProps.chat.content &&
+    prevProps.chat.isError === nextProps.chat.isError &&
+    prevProps.chat.isNewChat === nextProps.chat.isNewChat &&
+    prevProps.botInfo?.name === nextProps.botInfo?.name &&
+    prevProps.botInfo?.avatar === nextProps.botInfo?.avatar
+  );
+});
+
+export default MemoizedChatMessage;
