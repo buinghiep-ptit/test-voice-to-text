@@ -33,9 +33,9 @@ function Bubble() {
         </div>
       )}
       <img
-        src="/ai-agent/sdk/assets/images/bot-icon-blue-unscreen.gif"
+        src="/ai-agent/sdk/assets/images/chang-bubble-icon.webp"
         alt="ic"
-        className="w-20 h-20 object-contain pointer-events-auto! cursor-pointer "
+        className="w-18 h-18 object-contain pointer-events-auto! cursor-pointer "
         onClick={openChat}
       />
     </div>
