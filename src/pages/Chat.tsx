@@ -204,16 +204,38 @@ function Chat() {
   };
 
   const generateBotResponse = async (history: IHistory) => {
+    let isStreamingActive = false;
+    let hasRealContent = false;
+
     const updateHistory = (text: string, isError = false) => {
-      setChatHistory((prev) => [
-        ...prev
+      setChatHistory((prev) => {
+        const filteredHistory = prev
           .filter((msg) => msg.content !== "Thinking...")
           .map((msg) => ({
             ...msg,
             isNewChat: false,
-          })),
-        { role: "Ai", content: text, isError, isNewChat: true },
-      ]);
+          }));
+
+        if (isStreamingActive && hasRealContent) {
+          // Tìm và cập nhật message AI cuối cùng
+          const lastIndex = filteredHistory.length - 1;
+          if (lastIndex >= 0 && filteredHistory[lastIndex].role === "Ai") {
+            const updatedHistory = [...filteredHistory];
+            updatedHistory[lastIndex] = {
+              ...updatedHistory[lastIndex],
+              content: text,
+              isError,
+            };
+            return updatedHistory;
+          }
+        }
+
+        // Tạo message AI mới
+        return [
+          ...filteredHistory,
+          { role: "Ai", content: text, isError, isNewChat: true },
+        ];
+      });
     };
 
     const requestOptions = {
@@ -229,17 +251,88 @@ function Chat() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_APP_URL}/api/sdk/chat`,
+        `${import.meta.env.VITE_API_APP_URL}/api/sdk/chat?isStream=true`,
         requestOptions
       );
 
-      const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.error.message || "Something went wrong!");
-      updateHistory(data.text);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || "Something went wrong!");
+      }
+
+      if (!response.body) {
+        throw new Error("No response body");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let accumulatedText = "";
+
+      // Hiển thị "Thinking..." ngay từ đầu
+      updateHistory("Thinking...");
+
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+
+        // Xử lý multiple JSON objects trong một chunk
+        const lines = chunk.split("\n").filter((line) => line.trim());
+
+        for (const line of lines) {
+          try {
+            const data = JSON.parse(line);
+
+            if (data.type === "in-progress") {
+              // Bỏ qua nếu text rỗng nhưng vẫn giữ "Thinking..."
+              if (data.text === "") {
+                continue;
+              }
+
+              // Khi có text thực sự đầu tiên, chuyển sang chế độ streaming
+              if (!hasRealContent) {
+                hasRealContent = true;
+                isStreamingActive = true;
+                // Thay thế "Thinking..." bằng text thực sự
+                updateHistory("");
+              }
+
+              // Cập nhật text tích lũy
+              accumulatedText += data.text;
+              updateHistory(accumulatedText);
+            } else if (data.type === "final") {
+              // Nếu chưa có real content, tạo message mới
+              if (!hasRealContent) {
+                hasRealContent = true;
+                updateHistory(data.text);
+              } else {
+                // Cập nhật text cuối cùng
+                updateHistory(data.text);
+              }
+              accumulatedText = data.text;
+            }
+          } catch (parseError) {
+            // Bỏ qua các chunk không phải JSON hợp lệ
+            console.warn("Failed to parse chunk:", line);
+          }
+        }
+      }
     } catch (error: any) {
       updateHistory(error.message, true);
-      console.log(error);
+      console.error("Streaming error:", error);
+    } finally {
+      // Reset streaming flag
+      isStreamingActive = false;
+
+      // Đảm bảo message cuối cùng không còn trạng thái streaming
+      setChatHistory((prev) =>
+        prev.map((msg) => ({
+          ...msg,
+          isNewChat: false,
+        }))
+      );
     }
   };
 

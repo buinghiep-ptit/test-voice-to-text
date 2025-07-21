@@ -82,7 +82,9 @@ const ChatMessage = ({ chat, onTypeProgress, botInfo }: ChatMessageProps) => {
     >
       {chat.role === "Ai" && (
         <img
-          src={botInfo?.avatar || "/ai-agent/sdk/assets/images/chang-avatar.jpg"}
+          src={
+            botInfo?.avatar || "/ai-agent/sdk/assets/images/chang-avatar.jpg"
+          }
           alt="ic"
           className="w-8 h-8 rounded-full object-cover"
         />
@@ -206,7 +208,7 @@ const ChatMessage = ({ chat, onTypeProgress, botInfo }: ChatMessageProps) => {
                   },
                 }}
               >
-                {preprocessLaTeX(replaceLiteralNewlines(displayedText))}
+                {preprocessLaTeX(chat?.content || "")}
               </Markdown>
             )}
           </div>
