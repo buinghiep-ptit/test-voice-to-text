@@ -16,13 +16,19 @@ import React, { useEffect, useState } from "react";
 interface ChatMessageProps {
   chat: IHistory;
   onTypeProgress?: () => void;
+  isStream?: boolean;
   botInfo?: {
     name: string;
     avatar: string;
   };
 }
 
-const ChatMessage = ({ chat, onTypeProgress, botInfo }: ChatMessageProps) => {
+const ChatMessage = ({
+  chat,
+  onTypeProgress,
+  botInfo,
+  isStream,
+}: ChatMessageProps) => {
   const [displayedText, setDisplayedText] = useState("");
   const isToday = moment(chat.dateCreated || new Date()).isSame(
     moment(),
@@ -208,7 +214,9 @@ const ChatMessage = ({ chat, onTypeProgress, botInfo }: ChatMessageProps) => {
                   },
                 }}
               >
-                {preprocessLaTeX(chat?.content || "")}
+                {preprocessLaTeX(
+                  !isStream ? displayedText : chat?.content || ""
+                )}
               </Markdown>
             )}
           </div>
@@ -227,7 +235,8 @@ const MemoizedChatMessage = React.memo(ChatMessage, (prevProps, nextProps) => {
     prevProps.chat.isError === nextProps.chat.isError &&
     prevProps.chat.isNewChat === nextProps.chat.isNewChat &&
     prevProps.botInfo?.name === nextProps.botInfo?.name &&
-    prevProps.botInfo?.avatar === nextProps.botInfo?.avatar
+    prevProps.botInfo?.avatar === nextProps.botInfo?.avatar &&
+    prevProps.isStream === nextProps.isStream
   );
 });
 

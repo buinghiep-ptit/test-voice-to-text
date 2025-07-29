@@ -28,6 +28,7 @@ function Chat() {
   const isAllowExpandBot = searchParams.get("isAllowExpandBot");
   const tenantId = searchParams.get("tenant_id");
   const isCustomBotInfo = searchParams.get("isCustomBotInfo");
+  const isStream = searchParams.get("isStream");
   const decodeToken = tenantId ? decodeURIComponent(tenantId) : "";
 
   const [isMaximized, setIsMaximized] = useState(false);
@@ -204,6 +205,46 @@ function Chat() {
   };
 
   const generateBotResponse = async (history: IHistory) => {
+    const updateHistory = (text: string, isError = false) => {
+      setChatHistory((prev) => [
+        ...prev
+          .filter((msg) => msg.content !== "Thinking...")
+          .map((msg) => ({
+            ...msg,
+            isNewChat: false,
+          })),
+        { role: "Ai", content: text, isError, isNewChat: true },
+      ]);
+    };
+
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${userToken}`,
+      },
+      body: JSON.stringify({
+        text: history.content,
+      }),
+    };
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_APP_URL}/api/sdk/chat`,
+        requestOptions
+      );
+
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(data.error.message || "Something went wrong!");
+      updateHistory(data.text);
+    } catch (error: any) {
+      updateHistory(error.message, true);
+      console.log(error);
+    }
+  };
+
+  const generateBotResponseWithStream = async (history: IHistory) => {
     let isStreamingActive = false;
     let hasRealContent = false;
 
@@ -434,6 +475,7 @@ function Chat() {
             key={index}
             chat={chat}
             onTypeProgress={scrollToBottom}
+            isStream={!!isStream}
           />
         ))}
       </div>
@@ -441,7 +483,9 @@ function Chat() {
       <div className="chat-footer">
         <ChatForm
           setChatHistory={setChatHistory}
-          generateBotResponse={generateBotResponse}
+          generateBotResponse={
+            isStream ? generateBotResponseWithStream : generateBotResponse
+          }
         />
         <button onClick={handleClearClick} className="clear-btn cursor-pointer">
           <img
