@@ -1,3 +1,4 @@
+/* eslint-disable no-constant-condition */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from "react";
 import ChatForm from "../components/ChatForm";
@@ -12,6 +13,7 @@ export interface IHistory {
   isError?: boolean;
   dateCreated?: string;
   isNewChat?: boolean;
+  isThinking?: boolean;
 }
 
 function Chat() {
@@ -244,56 +246,80 @@ function Chat() {
     }
   };
 
-  const generateBotResponseWithStream = async (history: IHistory) => {
-    let isStreamingActive = false;
-    let hasRealContent = false;
+  const generateBotResponseWithStreamV2 = async (history: IHistory) => {
+    const streamState = {
+      isActive: false,
+      hasContent: false,
+      accumulated: "",
+    };
 
-    const updateHistory = (text: string, isError = false) => {
+    const updateMessage = (
+      content: string,
+      options: {
+        isError?: boolean;
+        isThinking?: boolean;
+        isComplete?: boolean;
+      } = {}
+    ) => {
       setChatHistory((prev) => {
-        const filteredHistory = prev
+        const filtered = prev
           .filter((msg) => msg.content !== "Thinking...")
-          .map((msg) => ({
-            ...msg,
-            isNewChat: false,
-          }));
+          .map((msg) => ({ ...msg, isNewChat: false }));
 
-        if (isStreamingActive && hasRealContent) {
-          // Tìm và cập nhật message AI cuối cùng
-          const lastIndex = filteredHistory.length - 1;
-          if (lastIndex >= 0 && filteredHistory[lastIndex].role === "Ai") {
-            const updatedHistory = [...filteredHistory];
-            updatedHistory[lastIndex] = {
-              ...updatedHistory[lastIndex],
-              content: text,
-              isError,
-            };
-            return updatedHistory;
-          }
+        const lastIndex = filtered.length - 1;
+        const isUpdatingExisting =
+          streamState.isActive &&
+          lastIndex >= 0 &&
+          filtered[lastIndex].role === "Ai";
+
+        if (isUpdatingExisting) {
+          const updated = [...filtered];
+          updated[lastIndex] = {
+            ...updated[lastIndex],
+            content,
+            isError: options.isError || false,
+            isThinking: options.isThinking || false,
+          };
+          return updated;
         }
 
-        // Tạo message AI mới
         return [
-          ...filteredHistory,
-          { role: "Ai", content: text, isError, isNewChat: true },
+          ...filtered,
+          {
+            role: "Ai",
+            content,
+            isError: options.isError || false,
+            isNewChat: !streamState.isActive,
+            isThinking: options.isThinking || false,
+          },
         ];
       });
     };
 
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${userToken}`,
-      },
-      body: JSON.stringify({
-        text: history.content,
-      }),
+    const cleanup = () => {
+      streamState.isActive = false;
+      setChatHistory((prev) =>
+        prev.map((msg) => ({
+          ...msg,
+          isNewChat: false,
+          isThinking: false,
+        }))
+      );
     };
 
     try {
+      updateMessage("Thinking...", { isThinking: true });
+
       const response = await fetch(
         `${import.meta.env.VITE_API_APP_URL}/api/sdk/chat?isStream=true`,
-        requestOptions
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userToken}`,
+          },
+          body: JSON.stringify({ text: history.content }),
+        }
       );
 
       if (!response.ok) {
@@ -307,19 +333,12 @@ function Chat() {
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder("utf-8");
-      let accumulatedText = "";
 
-      // Hiển thị "Thinking..." ngay từ đầu
-      updateHistory("Thinking...");
-
-      // eslint-disable-next-line no-constant-condition
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
         const chunk = decoder.decode(value, { stream: true });
-
-        // Xử lý multiple JSON objects trong một chunk
         const lines = chunk.split("\n").filter((line) => line.trim());
 
         for (const line of lines) {
@@ -327,53 +346,30 @@ function Chat() {
             const data = JSON.parse(line);
 
             if (data.type === "in-progress") {
-              // Bỏ qua nếu text rỗng nhưng vẫn giữ "Thinking..."
-              if (data.text === "") {
-                continue;
-              }
+              if (data.text) {
+                if (!streamState.hasContent) {
+                  streamState.hasContent = true;
+                  streamState.isActive = true;
+                }
 
-              // Khi có text thực sự đầu tiên, chuyển sang chế độ streaming
-              if (!hasRealContent) {
-                hasRealContent = true;
-                isStreamingActive = true;
-                // Thay thế "Thinking..." bằng text thực sự
-                updateHistory("");
+                streamState.accumulated += data.text;
+                updateMessage(streamState.accumulated);
               }
-
-              // Cập nhật text tích lũy
-              accumulatedText += data.text;
-              updateHistory(accumulatedText);
             } else if (data.type === "final") {
-              // Nếu chưa có real content, tạo message mới
-              if (!hasRealContent) {
-                hasRealContent = true;
-                updateHistory(data.text);
-              } else {
-                // Cập nhật text cuối cùng
-                updateHistory(data.text);
-              }
-              accumulatedText = data.text;
+              const finalText = data.text || streamState.accumulated;
+              updateMessage(finalText, { isComplete: true });
+              return; // Exit the function
             }
           } catch (parseError) {
-            // Bỏ qua các chunk không phải JSON hợp lệ
-            console.warn("Failed to parse chunk:", line);
+            console.warn("Failed to parse chunk:", line, parseError);
           }
         }
       }
     } catch (error: any) {
-      updateHistory(error.message, true);
+      updateMessage(error.message, { isError: true });
       console.error("Streaming error:", error);
     } finally {
-      // Reset streaming flag
-      isStreamingActive = false;
-
-      // Đảm bảo message cuối cùng không còn trạng thái streaming
-      setChatHistory((prev) =>
-        prev.map((msg) => ({
-          ...msg,
-          isNewChat: false,
-        }))
-      );
+      cleanup();
     }
   };
 
@@ -484,7 +480,7 @@ function Chat() {
         <ChatForm
           setChatHistory={setChatHistory}
           generateBotResponse={
-            isStream ? generateBotResponseWithStream : generateBotResponse
+            isStream ? generateBotResponseWithStreamV2 : generateBotResponse
           }
         />
         <button onClick={handleClearClick} className="clear-btn cursor-pointer">
