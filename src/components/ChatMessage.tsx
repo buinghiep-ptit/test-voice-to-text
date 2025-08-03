@@ -36,6 +36,7 @@ const ChatMessage = ({
   );
 
   useEffect(() => {
+    if (isStream) return;
     // Reset state when chat content changes
     setDisplayedText("");
 

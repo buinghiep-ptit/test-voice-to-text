@@ -338,10 +338,19 @@ function Chat() {
         buffer = "";
       }
     } catch (error: any) {
-      setChatHistory((prev) => [
-        ...prev.map((msg) => ({ ...msg, isNewChat: false })),
-        { role: "Ai", content: error.message, isError: true, isNewChat: true },
-      ]);
+      setChatHistory((prev) => {
+        // Xóa thinking nếu có
+        const filtered = prev.filter((msg) => msg.content !== "Thinking...");
+        return [
+          ...filtered.map((msg) => ({ ...msg, isNewChat: false })),
+          {
+            role: "Ai",
+            content: error.message,
+            isError: true,
+            isNewChat: true,
+          },
+        ];
+      });
       console.error("Streaming error:", error);
     }
   };
