@@ -246,70 +246,8 @@ function Chat() {
     }
   };
 
-  const generateBotResponseWithStreamV2 = async (history: IHistory) => {
-    const streamState = {
-      isActive: false,
-      hasContent: false,
-      accumulated: "",
-    };
-
-    const updateMessage = (
-      content: string,
-      options: {
-        isError?: boolean;
-        isThinking?: boolean;
-        isComplete?: boolean;
-      } = {}
-    ) => {
-      setChatHistory((prev) => {
-        const filtered = prev
-          .filter((msg) => msg.content !== "Thinking...")
-          .map((msg) => ({ ...msg, isNewChat: false }));
-
-        const lastIndex = filtered.length - 1;
-        const isUpdatingExisting =
-          streamState.isActive &&
-          lastIndex >= 0 &&
-          filtered[lastIndex].role === "Ai";
-
-        if (isUpdatingExisting) {
-          const updated = [...filtered];
-          updated[lastIndex] = {
-            ...updated[lastIndex],
-            content,
-            isError: options.isError || false,
-            isThinking: options.isThinking || false,
-          };
-          return updated;
-        }
-
-        return [
-          ...filtered,
-          {
-            role: "Ai",
-            content,
-            isError: options.isError || false,
-            isNewChat: !streamState.isActive,
-            isThinking: options.isThinking || false,
-          },
-        ];
-      });
-    };
-
-    const cleanup = () => {
-      streamState.isActive = false;
-      setChatHistory((prev) =>
-        prev.map((msg) => ({
-          ...msg,
-          isNewChat: false,
-          isThinking: false,
-        }))
-      );
-    };
-
+  const generateBotResponseSimple = async (history: IHistory) => {
     try {
-      updateMessage("Thinking...", { isThinking: true });
-
       const response = await fetch(
         `${import.meta.env.VITE_API_APP_URL}/api/sdk/chat?isStream=true`,
         {
@@ -318,7 +256,9 @@ function Chat() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${userToken}`,
           },
-          body: JSON.stringify({ text: history.content }),
+          body: JSON.stringify({
+            text: history.content,
+          }),
         }
       );
 
@@ -333,43 +273,76 @@ function Chat() {
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder("utf-8");
+      let buffer = "";
+
+      // Tạo aiMessage object duy nhất
+      const aiMessage = {
+        content: "",
+        role: "Ai",
+        isError: false,
+        isNewChat: true,
+      };
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split("\n").filter((line) => line.trim());
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
 
         for (const line of lines) {
+          if (!line.trim()) continue;
+
           try {
             const data = JSON.parse(line);
 
             if (data.type === "in-progress") {
-              if (data.text) {
-                if (!streamState.hasContent) {
-                  streamState.hasContent = true;
-                  streamState.isActive = true;
-                }
+              // Accumulate content
+              aiMessage.content += data.text || "";
 
-                streamState.accumulated += data.text;
-                updateMessage(streamState.accumulated);
+              // Update UI chỉ khi có content thật sự
+              if (aiMessage.content.trim()) {
+                setChatHistory((prev) => {
+                  if (prev.length > 0 && prev[prev.length - 1].role === "Ai") {
+                    return [...prev.slice(0, -1), { ...aiMessage }];
+                  } else {
+                    return [
+                      ...prev.map((msg) => ({ ...msg, isNewChat: false })),
+                      { ...aiMessage },
+                    ];
+                  }
+                });
               }
             } else if (data.type === "final") {
-              const finalText = data.text || streamState.accumulated;
-              updateMessage(finalText, { isComplete: true });
-              return; // Exit the function
+              aiMessage.content = data.text || aiMessage.content;
+
+              setChatHistory((prev) => {
+                if (prev.length > 0 && prev[prev.length - 1].role === "Ai") {
+                  return [...prev.slice(0, -1), { ...aiMessage }];
+                } else {
+                  return [
+                    ...prev.map((msg) => ({ ...msg, isNewChat: false })),
+                    { ...aiMessage },
+                  ];
+                }
+              });
+
+              await reader.cancel();
+              return;
             }
-          } catch (parseError) {
-            console.warn("Failed to parse chunk:", line, parseError);
+          } catch (err) {
+            console.error("Failed to parse JSON line:", line, err);
           }
         }
+
+        buffer = "";
       }
     } catch (error: any) {
-      updateMessage(error.message, { isError: true });
+      setChatHistory((prev) => [
+        ...prev.map((msg) => ({ ...msg, isNewChat: false })),
+        { role: "Ai", content: error.message, isError: true, isNewChat: true },
+      ]);
       console.error("Streaming error:", error);
-    } finally {
-      cleanup();
     }
   };
 
@@ -480,7 +453,7 @@ function Chat() {
         <ChatForm
           setChatHistory={setChatHistory}
           generateBotResponse={
-            isStream ? generateBotResponseWithStreamV2 : generateBotResponse
+            isStream ? generateBotResponseSimple : generateBotResponse
           }
         />
         <button onClick={handleClearClick} className="clear-btn cursor-pointer">
