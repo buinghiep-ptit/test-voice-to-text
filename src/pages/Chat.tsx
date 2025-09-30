@@ -4,8 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import ChatForm from "../components/ChatForm";
 import ChatMessage from "../components/ChatMessage";
 import DotLoading from "../components/DotLoading";
+import TabBar from "../components/TabBar";
+import QueryModal from "../components/QueryModal";
 import { useSearchParams } from "react-router-dom";
 import ClearHistoryDialog from "../components/ClearHistoryDialog";
+import {
+  customerInfoQueries,
+  fptPlayQueries,
+  taskQueries,
+} from "../data/queryData";
 
 export interface IHistory {
   role?: string;
@@ -30,12 +37,18 @@ function Chat() {
   const isAllowExpandBot = searchParams.get("isAllowExpandBot");
   const tenantId = searchParams.get("tenant_id");
   const isCustomBotInfo = searchParams.get("isCustomBotInfo");
-  const isStream = searchParams.get("isStream");
+  const isStream = true; //searchParams.get("isStream");
+  const isWebview = searchParams.get("isWebview");
+
   const decodeToken = tenantId ? decodeURIComponent(tenantId) : "";
 
   const [isMaximized, setIsMaximized] = useState(false);
   const [isShowClearHistoryDialog, setIsShowClearHistoryDialog] =
     useState(false);
+  const [activeTab, setActiveTab] = useState("info");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalData, setModalData] = useState(customerInfoQueries);
+  const [modalTitle, setModalTitle] = useState("Tra cứu Thông tin KH");
 
   const toggleMaximize = () => {
     const newState = !isMaximized;
@@ -366,6 +379,12 @@ function Chat() {
     }
   };
 
+  const scrollToBottomDelayed = () => {
+    setTimeout(() => {
+      scrollToBottom();
+    }, 100);
+  };
+
   useEffect(() => {
     scrollToBottom();
   }, [chatHistory]);
@@ -384,43 +403,114 @@ function Chat() {
     setIsShowClearHistoryDialog(false);
   };
 
+  const handleTabClick = (tabId: string) => {
+    let data, title;
+    switch (tabId) {
+      case "info":
+        data = customerInfoQueries;
+        title = "Tra cứu Thông tin KH";
+        break;
+      case "service":
+        data = fptPlayQueries;
+        title = "Tra cứu Dịch vụ FPT Play";
+        break;
+      case "task":
+        data = taskQueries;
+        title = "Xử lý Tác vụ";
+        break;
+      default:
+        data = customerInfoQueries;
+        title = "Tra cứu Thông tin KH";
+    }
+    setModalData(data);
+    setModalTitle(title);
+    setIsModalOpen(true);
+  };
+
+  const handleSendQuery = (query: string) => {
+    // Thêm user message vào chat history (giống ChatForm)
+    setChatHistory((prev) => [
+      ...prev.map((h) => ({ ...h, isNewChat: false })),
+      { role: "Human", content: query },
+    ]);
+
+    // Scroll sau khi thêm user message
+    scrollToBottomDelayed();
+
+    // Thêm "Thinking..." message sau 600ms (giống ChatForm)
+    setTimeout(() => {
+      setChatHistory((prev) => [
+        ...prev.map((h) => ({ ...h, isNewChat: false })),
+        { role: "Ai", content: "Thinking..." },
+      ]);
+
+      // Scroll sau khi thêm thinking message
+      scrollToBottomDelayed();
+
+      // Generate bot response
+      const userMessage = { role: "Human", content: query };
+      if (isStream) {
+        generateBotResponseSimple(userMessage);
+      } else {
+        generateBotResponse(userMessage);
+      }
+    }, 600);
+  };
+
   return (
     <div className="chatbot-popup">
-      <div className="chat-header">
-        <div className="header-info">
-          <h2 className="logo-text">{botInfo?.name || "Chang"}</h2>
-        </div>
+      {!isWebview && (
+        <div className="chat-header">
+          <div className="header-info">
+            <h2 className="logo-text">{botInfo?.name || "Chang"}</h2>
+          </div>
 
-        <div className="flex items-center gap-2">
-          {isAllowExpandBot && (
-            <button
-              className="btn-icon cursor-pointer"
-              onClick={toggleMaximize}
-            >
+          <div className="flex items-center gap-2">
+            {isAllowExpandBot && (
+              <button
+                className="btn-icon cursor-pointer"
+                onClick={toggleMaximize}
+              >
+                <img
+                  src={
+                    !isMaximized
+                      ? "/ai-agent/sdk/assets/images/arrows-big.png"
+                      : "/ai-agent/sdk/assets/images/arrows-small.png"
+                  }
+                  alt={!isMaximized ? "Maximize" : "Minimize"}
+                  className="w-6"
+                  style={{
+                    transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                  }}
+                />
+              </button>
+            )}
+
+            <button className="btn-icon cursor-pointer" onClick={closeChat}>
               <img
-                src={
-                  !isMaximized
-                    ? "/ai-agent/sdk/assets/images/arrows-big.png"
-                    : "/ai-agent/sdk/assets/images/arrows-small.png"
-                }
-                alt={!isMaximized ? "Maximize" : "Minimize"}
+                src="/ai-agent/sdk/assets/images/minimize_white.svg"
+                alt="ic"
                 className="w-6"
-                style={{
-                  transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                }}
               />
             </button>
-          )}
-
-          <button className="btn-icon cursor-pointer" onClick={closeChat}>
-            <img
-              src="/ai-agent/sdk/assets/images/minimize_white.svg"
-              alt="ic"
-              className="w-6"
-            />
-          </button>
+          </div>
         </div>
-      </div>
+      )}
+      {/* Tab Bar */}
+      <TabBar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onTabClick={handleTabClick}
+      />
+
+      {/* Query Modal */}
+      <QueryModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSendQuery={handleSendQuery}
+        data={modalData}
+        title={modalTitle}
+      />
 
       {loading && (
         <div className="backdrop-chat">
