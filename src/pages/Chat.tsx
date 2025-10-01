@@ -404,6 +404,9 @@ function Chat() {
   };
 
   const handleTabClick = (tabId: string) => {
+    // Đóng modal hiện tại trước khi mở modal mới
+    setIsModalOpen(false);
+
     let data, title;
     switch (tabId) {
       case "info":
@@ -422,9 +425,13 @@ function Chat() {
         data = customerInfoQueries;
         title = "Tra cứu Thông tin KH";
     }
-    setModalData(data);
-    setModalTitle(title);
-    setIsModalOpen(true);
+
+    // Mở modal mới sau khi đã đóng modal cũ
+    setTimeout(() => {
+      setModalData(data);
+      setModalTitle(title);
+      setIsModalOpen(true);
+    }, 100);
   };
 
   const handleSendQuery = (query: string) => {

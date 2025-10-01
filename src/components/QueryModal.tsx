@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 interface QueryItem {
   id: number;
@@ -26,27 +26,33 @@ const QueryModal: React.FC<QueryModalProps> = ({
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const inputSectionRef = useRef<HTMLDivElement>(null);
+  const modalBodyRef = useRef<HTMLDivElement>(null);
+
+  // Reset selection khi modal đóng
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedItem(null);
+      setInputValue("");
+    }
+  }, [isOpen]);
 
   const handleItemClick = (item: QueryItem) => {
     setSelectedItem(item);
     setInputValue("");
 
-    // Scroll xuống input section và focus vào input (chỉ khi có input field)
+    // Scroll xuống bottom và focus vào input (chỉ khi có input field)
     if (item.command.includes("{input}")) {
       setTimeout(() => {
-        if (inputSectionRef.current) {
-          inputSectionRef.current.scrollIntoView({
+        if (modalBodyRef.current) {
+          modalBodyRef.current.scrollTo({
+            top: modalBodyRef.current.scrollHeight,
             behavior: "smooth",
-            block: "nearest",
           });
         }
 
-        // Focus vào input sau khi scroll
-        setTimeout(() => {
-          if (inputRef.current) {
-            inputRef.current.focus();
-          }
-        }, 300);
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
       }, 100);
     }
   };
@@ -90,7 +96,7 @@ const QueryModal: React.FC<QueryModalProps> = ({
           </button>
         </div>
 
-        <div className="modal-body">
+        <div className="modal-body" ref={modalBodyRef}>
           <div className="query-list">
             {data.map((item) => (
               <div

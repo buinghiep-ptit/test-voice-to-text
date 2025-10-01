@@ -130,13 +130,13 @@ body #root {
   background: transparent;
   border: none;
   color: #6c757d;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   border-radius: 20px;
   position: relative;
-  padding: 8px 12px;
+  padding: 8px 4px;
   border: 1px solid #e9ecef;
 }
 
@@ -181,9 +181,11 @@ body #root {
   background: #fff;
   border-radius: 12px;
   width: 100%;
-  max-width: 600px;
-  max-height: 90vh;
+  max-width: 576px;
+  max-height: 80vh;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
@@ -193,7 +195,8 @@ body #root {
   align-items: center;
   justify-content: center;
   padding: 12px 16px;
-  border-bottom: 1px solid #e9ecef;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.08);
 }
 
 .modal-header h3 {
@@ -218,9 +221,10 @@ body #root {
 
 .modal-body {
   padding: 24px;
-  max-height: 600px;
+  flex: 1;
   overflow-y: auto;
   scroll-behavior: smooth;
+  min-height: 0;
 }
 
 .query-list {
@@ -304,8 +308,9 @@ body #root {
   justify-content: flex-end;
   gap: 12px;
   padding: 12px 16px;
-  border-top: 1px solid #e9ecef;
-  background: #f9fafb;
+  background: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 -4px 12px -4px rgba(0, 0, 0, 0.08);
 }
 
 .btn-cancel,
@@ -316,7 +321,7 @@ body #root {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  border: 1px solid transparent;
+  /* border: 1px solid transparent; */
 }
 
 .btn-cancel {
