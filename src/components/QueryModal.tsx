@@ -40,21 +40,17 @@ const QueryModal: React.FC<QueryModalProps> = ({
     setSelectedItem(item);
     setInputValue("");
 
-    // Scroll xuống bottom và focus vào input (chỉ khi có input field)
-    if (item.command.includes("{input}")) {
-      setTimeout(() => {
-        if (modalBodyRef.current) {
-          modalBodyRef.current.scrollTo({
-            top: modalBodyRef.current.scrollHeight,
-            behavior: "smooth",
-          });
-        }
-
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
-      }, 100);
-    }
+    setTimeout(() => {
+      if (modalBodyRef.current) {
+        modalBodyRef.current.scrollTo({
+          top: modalBodyRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }
+      if (item.command.includes("{input}") && inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 100);
   };
 
   const handleSubmit = () => {
@@ -107,7 +103,7 @@ const QueryModal: React.FC<QueryModalProps> = ({
                 onClick={() => handleItemClick(item)}
               >
                 <div className="query-title">{item.title}</div>
-                <div className="query-example">{item.example}</div>
+                {/* <div className="query-example">{item.example}</div> */}
               </div>
             ))}
           </div>
@@ -126,6 +122,11 @@ const QueryModal: React.FC<QueryModalProps> = ({
               <div className="command-preview">
                 <strong>Câu lệnh:</strong> {selectedItem.command}
               </div>
+              {selectedItem.example && (
+                <div className="query-example" style={{ marginTop: 4 }}>
+                  <strong>Ví dụ:</strong> {selectedItem.example}
+                </div>
+              )}
             </div>
           )}
 
@@ -134,6 +135,11 @@ const QueryModal: React.FC<QueryModalProps> = ({
               <div className="command-preview">
                 <strong>Câu lệnh sẽ được gửi:</strong> {selectedItem.command}
               </div>
+              {selectedItem.example && (
+                <div className="query-example" style={{ marginTop: 4 }}>
+                  <strong>Ví dụ:</strong> {selectedItem.example}
+                </div>
+              )}
             </div>
           )}
         </div>
