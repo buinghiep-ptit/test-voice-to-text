@@ -76,14 +76,11 @@ const ChatMessage = ({
   const MessageWrapper =
     chat.role === "Ai" && chat.isNewChat ? motion.div : "div";
 
-  const [copied, setCopied] = useState(false);
   const longPressTimeout = useRef<number | null>(null);
 
   const handleCopy = (text: string) => {
     if (!text) return;
     navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1300);
     if (typeof onCopy === "function") onCopy(text);
   };
 
