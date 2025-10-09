@@ -465,7 +465,7 @@ function Chat() {
   };
 
   return (
-    <div className={`chatbot-popup ${isWebview ? "!pb-8" : ""}`}>
+    <div className="chatbot-popup">
       {!isWebview && (
         <div className="chat-header">
           <div className="header-info">
