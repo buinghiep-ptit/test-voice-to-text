@@ -11,7 +11,7 @@ import "./message.css";
 import moment from "moment";
 import DotLoading from "./DotLoading";
 import { IHistory } from "../pages/Chat";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 interface ChatMessageProps {
   chat: IHistory;
@@ -21,6 +21,7 @@ interface ChatMessageProps {
     name: string;
     avatar: string;
   };
+  onCopy?: (text: string) => void;
 }
 
 const ChatMessage = ({
@@ -28,6 +29,7 @@ const ChatMessage = ({
   onTypeProgress,
   botInfo,
   isStream,
+  onCopy,
 }: ChatMessageProps) => {
   const [displayedText, setDisplayedText] = useState("");
   const isToday = moment(chat.dateCreated || new Date()).isSame(
@@ -73,6 +75,29 @@ const ChatMessage = ({
 
   const MessageWrapper =
     chat.role === "Ai" && chat.isNewChat ? motion.div : "div";
+
+  const [copied, setCopied] = useState(false);
+  const longPressTimeout = useRef<number | null>(null);
+
+  const handleCopy = (text: string) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1300);
+    if (typeof onCopy === "function") onCopy(text);
+  };
+
+  const handleLongPressStart = (content: string) => () => {
+    // Reset timeout nếu có
+    if (longPressTimeout.current) clearTimeout(longPressTimeout.current);
+    longPressTimeout.current = setTimeout(() => {
+      handleCopy(content);
+    }, 700);
+  };
+
+  const handleLongPressEnd = () => {
+    if (longPressTimeout.current) clearTimeout(longPressTimeout.current);
+  };
 
   return (
     <MessageWrapper
@@ -122,7 +147,13 @@ const ChatMessage = ({
               display: "flex",
               flexDirection: "column",
               overflowX: "auto",
+              position: "relative",
             }}
+            onMouseDown={handleLongPressStart(chat.content || displayedText)}
+            onMouseUp={handleLongPressEnd}
+            onMouseLeave={handleLongPressEnd}
+            onTouchStart={handleLongPressStart(chat.content || displayedText)}
+            onTouchEnd={handleLongPressEnd}
           >
             {!chat.isNewChat ? (
               <Markdown

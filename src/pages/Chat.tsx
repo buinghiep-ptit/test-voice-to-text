@@ -49,6 +49,7 @@ function Chat() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState(customerInfoQueries);
   const [modalTitle, setModalTitle] = useState("Tra cứu hợp đồng");
+  const [showCopiedToast, setShowCopiedToast] = useState(false);
 
   const toggleMaximize = () => {
     const newState = !isMaximized;
@@ -464,6 +465,11 @@ function Chat() {
     }, 600);
   };
 
+  const handleMessageCopy = () => {
+    setShowCopiedToast(true);
+    setTimeout(() => setShowCopiedToast(false), 1300);
+  };
+
   return (
     <div className="chatbot-popup">
       {!isWebview && (
@@ -525,6 +531,28 @@ function Chat() {
         </div>
       )}
 
+      {showCopiedToast && (
+        <div
+          style={{
+            position: "absolute",
+            zIndex: 200,
+            left: "50%",
+            top: "36%",
+            transform: "translate(-50%, -50%)",
+            background: "rgba(0,0,0,0.74)",
+            color: "#fff",
+            borderRadius: 6,
+            padding: "2px 10px",
+            fontSize: 13,
+            fontWeight: 500,
+            pointerEvents: "none",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+          }}
+        >
+          Đã sao chép
+        </div>
+      )}
+
       <div ref={chatBodyRef} className="chat-body">
         {!chatHistory.length && !loading && (
           <div className="item-message bot-message">
@@ -551,6 +579,7 @@ function Chat() {
             chat={chat}
             onTypeProgress={scrollToBottom}
             isStream={!!isStream}
+            onCopy={handleMessageCopy}
           />
         ))}
       </div>
