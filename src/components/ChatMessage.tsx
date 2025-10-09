@@ -73,16 +73,74 @@ const ChatMessage = ({
     return content.replace(/\n\n/g, "\n\n&nbsp;\n\n"); // Thêm khoảng trắng để Markdown nhận diện đúng
   };
 
+  // Fallback copy function cho WebView
+  const fallbackCopy = (text: string) => {
+    // Tạo textarea tạm thời
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+
+    // Đặt style để ẩn element nhưng vẫn có thể select
+    textArea.style.position = "fixed";
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.width = "2em";
+    textArea.style.height = "2em";
+    textArea.style.padding = "0";
+    textArea.style.border = "none";
+    textArea.style.outline = "none";
+    textArea.style.boxShadow = "none";
+    textArea.style.background = "transparent";
+    textArea.style.opacity = "0";
+    textArea.style.pointerEvents = "none";
+
+    document.body.appendChild(textArea);
+
+    // Focus và select text
+    textArea.focus();
+    textArea.select();
+
+    // Thử select cho iOS
+    textArea.setSelectionRange(0, text.length);
+
+    try {
+      // Sử dụng execCommand (hoạt động tốt trên WebView)
+      const successful = document.execCommand("copy");
+      if (successful && typeof onCopy === "function") {
+        onCopy(text);
+      }
+    } catch (err) {
+      console.error("Fallback copy failed:", err);
+    } finally {
+      // Cleanup
+      document.body.removeChild(textArea);
+    }
+  };
+
+  const handleCopy = (text: string) => {
+    if (!text) return;
+
+    // Phương pháp 1: Thử clipboard API trước
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          if (typeof onCopy === "function") onCopy(text);
+        })
+        .catch((err) => {
+          // Nếu clipboard API thất bại, sử dụng fallback
+          console.log("Clipboard API failed, using fallback:", err);
+          fallbackCopy(text);
+        });
+    } else {
+      // Nếu không có clipboard API, sử dụng fallback ngay
+      fallbackCopy(text);
+    }
+  };
+
   const MessageWrapper =
     chat.role === "Ai" && chat.isNewChat ? motion.div : "div";
 
   const longPressTimeout = useRef<number | null>(null);
-
-  const handleCopy = (text: string) => {
-    if (!text) return;
-    navigator.clipboard.writeText(text);
-    if (typeof onCopy === "function") onCopy(text);
-  };
 
   const handleLongPressStart =
     (content: string) => (e: React.TouchEvent | React.MouseEvent) => {
@@ -269,6 +327,11 @@ const ChatMessage = ({
               type="button"
               aria-label="Sao chép"
               onClick={() => handleCopy(chat.content || displayedText)}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleCopy(chat.content || displayedText);
+              }}
               style={{
                 background: "none",
                 border: "none",
@@ -279,13 +342,14 @@ const ChatMessage = ({
                 alignItems: "center",
                 marginLeft: -3,
                 position: "relative",
+                WebkitTapHighlightColor: "transparent", // Tắt highlight trên mobile
               }}
               title="Sao chép"
             >
               <img
                 src="/ai-agent/sdk/assets/images/copy.png"
                 alt="ic"
-                className={`w-3.5 h-3.5 opacity-50`}
+                className={`w-4 h-4 opacity-50`}
               />
             </button>
           </div>
