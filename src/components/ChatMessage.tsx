@@ -252,6 +252,44 @@ const ChatMessage = ({
             )}
           </div>
         )}
+
+        {/* Copy icon for bot messages */}
+        {chat.role === "Ai" && chat.content !== "Thinking..." && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginTop: 2,
+              marginLeft: 16,
+              gap: 4,
+              justifyContent: "flex-start",
+            }}
+          >
+            <button
+              type="button"
+              aria-label="Sao chép"
+              onClick={() => handleCopy(chat.content || displayedText)}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: 3,
+                borderRadius: 5,
+                display: "flex",
+                alignItems: "center",
+                marginLeft: -3,
+                position: "relative",
+              }}
+              title="Sao chép"
+            >
+              <img
+                src="/ai-agent/sdk/assets/images/copy.png"
+                alt="ic"
+                className={`w-3.5 h-3.5 opacity-50`}
+              />
+            </button>
+          </div>
+        )}
       </div>
     </MessageWrapper>
   );
