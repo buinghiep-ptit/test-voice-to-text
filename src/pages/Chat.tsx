@@ -465,7 +465,7 @@ function Chat() {
   };
 
   return (
-    <div className="chatbot-popup">
+    <div className={`chatbot-popup ${isWebview ? "!pb-10" : ""}`}>
       {!isWebview && (
         <div className="chat-header">
           <div className="header-info">
@@ -555,7 +555,7 @@ function Chat() {
         ))}
       </div>
 
-      <div className={`chat-footer ${isWebview ? "!pb-10" : ""}`}>
+      <div className="chat-footer">
         <ChatForm
           setChatHistory={setChatHistory}
           generateBotResponse={
