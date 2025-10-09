@@ -84,13 +84,14 @@ const ChatMessage = ({
     if (typeof onCopy === "function") onCopy(text);
   };
 
-  const handleLongPressStart = (content: string) => () => {
-    // Reset timeout nếu có
-    if (longPressTimeout.current) clearTimeout(longPressTimeout.current);
-    longPressTimeout.current = setTimeout(() => {
-      handleCopy(content);
-    }, 700);
-  };
+  const handleLongPressStart =
+    (content: string) => (e: React.TouchEvent | React.MouseEvent) => {
+      if (e && typeof e.preventDefault === "function") e.preventDefault();
+      if (longPressTimeout.current) clearTimeout(longPressTimeout.current);
+      longPressTimeout.current = window.setTimeout(() => {
+        handleCopy(content);
+      }, 700);
+    };
 
   const handleLongPressEnd = () => {
     if (longPressTimeout.current) clearTimeout(longPressTimeout.current);
@@ -151,6 +152,7 @@ const ChatMessage = ({
             onMouseLeave={handleLongPressEnd}
             onTouchStart={handleLongPressStart(chat.content || displayedText)}
             onTouchEnd={handleLongPressEnd}
+            onContextMenu={(e) => e.preventDefault()}
           >
             {!chat.isNewChat ? (
               <Markdown
