@@ -36,7 +36,7 @@ function Chat() {
 
   const isAllowExpandBot = searchParams.get("isAllowExpandBot");
   const tenantId = searchParams.get("tenant_id");
-  const isCustomBotInfo = searchParams.get("isCustomBotInfo");
+  const isCustomBotInfo = true;
   const isStream = true; //searchParams.get("isStream");
   const isWebview = searchParams.get("isWebview");
 
@@ -48,7 +48,7 @@ function Chat() {
   const [activeTab, setActiveTab] = useState("info");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState(customerInfoQueries);
-  const [modalTitle, setModalTitle] = useState("Tra cứu Thông tin KH");
+  const [modalTitle, setModalTitle] = useState("Tra cứu hợp đồng");
 
   const toggleMaximize = () => {
     const newState = !isMaximized;
@@ -411,19 +411,19 @@ function Chat() {
     switch (tabId) {
       case "info":
         data = customerInfoQueries;
-        title = "Tra cứu Thông tin KH";
+        title = "Tra cứu hợp đồng";
         break;
       case "service":
         data = fptPlayQueries;
-        title = "Tra cứu Dịch vụ FPT Play";
+        title = "Tra cứu FPT Play";
         break;
       case "task":
         data = taskQueries;
-        title = "Xử lý Tác vụ";
+        title = "Xử lý tác vụ";
         break;
       default:
         data = customerInfoQueries;
-        title = "Tra cứu Thông tin KH";
+        title = "Tra cứu hợp đồng";
     }
 
     // Mở modal mới sau khi đã đóng modal cũ
@@ -555,7 +555,7 @@ function Chat() {
         ))}
       </div>
 
-      <div className="chat-footer">
+      <div className={`chat-footer ${isWebview ? "!pb-10" : ""}`}>
         <ChatForm
           setChatHistory={setChatHistory}
           generateBotResponse={

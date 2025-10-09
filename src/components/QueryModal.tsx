@@ -25,7 +25,6 @@ const QueryModal: React.FC<QueryModalProps> = ({
   const [selectedItem, setSelectedItem] = useState<QueryItem | null>(null);
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
-  const inputSectionRef = useRef<HTMLDivElement>(null);
   const modalBodyRef = useRef<HTMLDivElement>(null);
 
   // Reset selection khi modal đóng
@@ -41,12 +40,6 @@ const QueryModal: React.FC<QueryModalProps> = ({
     setInputValue("");
 
     setTimeout(() => {
-      if (modalBodyRef.current) {
-        modalBodyRef.current.scrollTo({
-          top: modalBodyRef.current.scrollHeight,
-          behavior: "smooth",
-        });
-      }
       if (item.command.includes("{input}") && inputRef.current) {
         inputRef.current.focus();
       }
@@ -82,13 +75,22 @@ const QueryModal: React.FC<QueryModalProps> = ({
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h3>{title}</h3>
-          <button className="modal-close" onClick={onClose}>
-            <img
-              src="/ai-agent/sdk/assets/images/minimize_white.svg"
-              alt="close"
-              className="w-6"
-            />
+          <span className="modal-title">{title}</span>
+          <button className="modal-close" onClick={onClose} aria-label="Đóng">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M6 6L14 14M14 6L6 14"
+                stroke="#6c757d"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
           </button>
         </div>
 
@@ -107,47 +109,20 @@ const QueryModal: React.FC<QueryModalProps> = ({
               </div>
             ))}
           </div>
-
-          {selectedItem && selectedItem.command.includes("{input}") && (
-            <div className="input-section" ref={inputSectionRef}>
-              <label className="input-label">Nhập thông tin tra cứu:</label>
-              <input
-                ref={inputRef}
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Nhập thông tin cần tra cứu..."
-                className="query-input"
-              />
-              <div className="command-preview">
-                <strong>Câu lệnh:</strong> {selectedItem.command}
-              </div>
-              {selectedItem.example && (
-                <div className="query-example" style={{ marginTop: 4 }}>
-                  <strong>Ví dụ:</strong> {selectedItem.example}
-                </div>
-              )}
-            </div>
-          )}
-
-          {selectedItem && !selectedItem.command.includes("{input}") && (
-            <div className="input-section" ref={inputSectionRef}>
-              <div className="command-preview">
-                <strong>Câu lệnh sẽ được gửi:</strong> {selectedItem.command}
-              </div>
-              {selectedItem.example && (
-                <div className="query-example" style={{ marginTop: 4 }}>
-                  <strong>Ví dụ:</strong> {selectedItem.example}
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
         <div className="modal-footer">
-          <button className="btn-cancel" onClick={onClose}>
-            Hủy
-          </button>
+          {selectedItem && selectedItem.command.includes("{input}") && (
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder="Nhập số hợp đồng/số điện thoại..."
+              className="query-input"
+              style={{ flex: 1, marginRight: 12 }}
+            />
+          )}
           <button
             className="btn-submit"
             onClick={handleSubmit}
