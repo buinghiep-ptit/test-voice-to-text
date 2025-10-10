@@ -17,7 +17,7 @@ const TabBar: React.FC<TabBarProps> = ({
     { id: "task", label: "Xử lý tác vụ" },
   ];
 
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
 
   const handleExpandClick = () => {
     setIsExpanded((prev) => !prev);

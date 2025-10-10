@@ -15,12 +15,14 @@ import {
 } from "../data/queryData";
 
 export interface IHistory {
+  id?: number;
   role?: string;
   content?: string;
   isError?: boolean;
   dateCreated?: string;
   isNewChat?: boolean;
   isThinking?: boolean;
+  isLiked?: number; // 1 = liked, 0 = not liked
 }
 
 function Chat() {
@@ -217,6 +219,72 @@ function Chat() {
     } catch (error) {
       setLoading(false);
       console.log(error);
+    }
+  };
+
+  // API functions for like and brick
+  const handleLike = async (messageId: number, action: number) => {
+    try {
+      const response = await fetch(
+        `http://chang.dscapp.com/ai-agent/api/sdk/message/${messageId}/feedback`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userToken}`,
+          },
+          body: JSON.stringify({
+            action: action,
+            comment: null,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        console.log("Like successful");
+        // Update the message in chat history
+        setChatHistory((prev) =>
+          prev.map((msg) =>
+            msg.id === messageId ? { ...msg, isLiked: 1 } : msg
+          )
+        );
+      } else {
+        console.error("Like failed:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Like error:", error);
+    }
+  };
+
+  const handleBrick = async (
+    messageId: number,
+    action: number,
+    comment: string
+  ) => {
+    try {
+      const response = await fetch(
+        `http://chang.dscapp.com/ai-agent/api/sdk/message/${messageId}/feedback`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userToken}`,
+          },
+          body: JSON.stringify({
+            action: action,
+            comment: comment,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        console.log("Brick successful");
+        // You might want to show a success message or update UI
+      } else {
+        console.error("Brick failed:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Brick error:", error);
     }
   };
 
@@ -580,6 +648,8 @@ function Chat() {
             onTypeProgress={scrollToBottom}
             isStream={!!isStream}
             onCopy={handleMessageCopy}
+            onLike={handleLike}
+            onBrick={handleBrick}
           />
         ))}
       </div>
