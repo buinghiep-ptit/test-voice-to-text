@@ -226,7 +226,9 @@ function Chat() {
   const handleLike = async (messageId: number, action: number) => {
     try {
       const response = await fetch(
-        `http://chang.dscapp.com/ai-agent/api/sdk/message/${messageId}/feedback`,
+        `${
+          import.meta.env.VITE_API_APP_URL
+        }/api/sdk/message/${messageId}/feedback`,
         {
           method: "POST",
           headers: {
@@ -241,7 +243,6 @@ function Chat() {
       );
 
       if (response.ok) {
-        console.log("Like successful");
         // Update the message in chat history
         setChatHistory((prev) =>
           prev.map((msg) =>
@@ -263,7 +264,9 @@ function Chat() {
   ) => {
     try {
       const response = await fetch(
-        `http://chang.dscapp.com/ai-agent/api/sdk/message/${messageId}/feedback`,
+        `${
+          import.meta.env.VITE_API_APP_URL
+        }/api/sdk/message/${messageId}/feedback`,
         {
           method: "POST",
           headers: {
