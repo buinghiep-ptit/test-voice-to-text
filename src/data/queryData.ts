@@ -153,7 +153,7 @@ export const taskQueries: QueryItem[] = [
   {
     id: 2,
     title: "Clear tín hiệu online NET",
-    command: "_Chuẩn bị golive_",
-    example: "(không có ví dụ cụ thể)",
+    command: "Clear tín hiệu {input}",
+    example: "Clear tín hiệu HNH661487",
   },
 ];
