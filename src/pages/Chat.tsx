@@ -189,7 +189,10 @@ function Chat() {
       const data = await response.json();
       if (!response.ok)
         throw new Error(data.error.message || "Something went wrong!");
-      setChatHistory([]);
+      setChatHistory((prev) => [
+        ...prev,
+        { content: data.text, role: "Ai", id: data.msgId },
+      ]);
     } catch (error) {
       console.log(error);
     }
