@@ -66,6 +66,12 @@ export const customerInfoQueries: QueryItem[] = [
     command: "Số tài khoản chi nhánh {input}",
     example: "Số tài khoản chi nhánh HPG",
   },
+  {
+    id: 11,
+    title: "Tìm thông tin HĐ từ CCCD/Hộ chiếu/...",
+    command: "Tra cứu HĐ từ mã định danh {input}",
+    example: "Tra cứu HĐ từ mã định danh 0909090909",
+  },
 ];
 
 export const fptPlayQueries: QueryItem[] = [

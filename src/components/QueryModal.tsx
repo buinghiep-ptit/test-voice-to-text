@@ -118,7 +118,11 @@ const QueryModal: React.FC<QueryModalProps> = ({
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Nhập số hợp đồng/số điện thoại..."
+              placeholder={
+                title === "Tra cứu hợp đồng" && selectedItem?.id === 11
+                  ? "Nhập số CCCD/Hộ chiếu..."
+                  : "Nhập số hợp đồng/số điện thoại..."
+              }
               className="query-input"
               style={{ flex: 1, marginRight: 12 }}
             />
