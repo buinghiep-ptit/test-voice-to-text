@@ -39,6 +39,7 @@ const ChatMessage = ({
   onBricked,
 }: ChatMessageProps) => {
   const [displayedText, setDisplayedText] = useState("");
+  const [showSources, setShowSources] = useState(false);
   const isToday = moment(chat.dateCreated || new Date()).isSame(
     moment(),
     "day"
@@ -206,7 +207,10 @@ const ChatMessage = ({
             />
             {Array.isArray(chat.assistantAgents) &&
               chat.assistantAgents.length > 0 && (
-                <div className="flex items-center gap-1">
+                <div
+                  className="flex items-center gap-1 cursor-pointer"
+                  onClick={() => setShowSources(true)}
+                >
                   <div className="flex">
                     {chat.assistantAgents.slice(0, 3).map((agent, idx) => (
                       <img
@@ -225,6 +229,38 @@ const ChatMessage = ({
                   </span>
                 </div>
               )}
+          </div>
+        )}
+
+        {/* Sources Modal */}
+        {chat.role === "Ai" && chat.isFinal && Array.isArray(chat.assistantAgents) && chat.assistantAgents.length > 0 && showSources && (
+          <div className="modal-overlay" onClick={() => setShowSources(false)}>
+            <div
+              className="bg-white rounded-xl p-6! max-w-sm w-full shadow-xl transform transition-all animate-fade-in"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="modal-title font-semibold! mb-4!">Nguồn tham khảo</h3>
+              <div className="flex flex-col gap-3 max-h-64 overflow-y-auto">
+                {chat.assistantAgents.map((agent, idx) => (
+                  <div key={`${agent.avatar}-${idx}`} className="flex items-center gap-3">
+                    <img
+                      src={agent.avatar}
+                      alt={agent.name}
+                      className="w-8 h-8 rounded-full object-cover border border-gray-200"
+                    />
+                    <span className="text-sm" style={{ color: '#111827' }}>{agent.name}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-end space-x-3! mt-4!">
+                <button
+                  onClick={() => setShowSources(false)}
+                  className="cursor-pointer px-4! py-2! rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"
+                >
+                  Đóng
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
