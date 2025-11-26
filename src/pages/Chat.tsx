@@ -22,7 +22,9 @@ export interface IHistory {
   dateCreated?: string;
   isNewChat?: boolean;
   isThinking?: boolean;
+  isFinal?: boolean;
   isLiked?: number; // 1 = liked, 0 = not liked
+  assistantAgents?: { name: string; avatar: string }[];
 }
 
 function Chat() {
@@ -52,6 +54,7 @@ function Chat() {
   const [modalData, setModalData] = useState(customerInfoQueries);
   const [modalTitle, setModalTitle] = useState("Tra cứu hợp đồng");
   const [showCopiedToast, setShowCopiedToast] = useState(false);
+  const [showBrickedToast, setShowBrickedToast] = useState(false);
 
   const toggleMaximize = () => {
     const newState = !isMaximized;
@@ -191,7 +194,13 @@ function Chat() {
         throw new Error(data.error.message || "Something went wrong!");
       setChatHistory((prev) => [
         ...prev,
-        { content: data.text, role: "Ai", id: data.msgId },
+        {
+          content: data.text,
+          role: "Ai",
+          id: data.msgId,
+          isFinal: true,
+          isNewChat: true,
+        },
       ]);
     } catch (error) {
       console.log(error);
@@ -218,7 +227,15 @@ function Chat() {
       if (!response.ok)
         throw new Error(data.error.message || "Something went wrong!");
 
-      setChatHistory(data.items.reverse());
+      setChatHistory(
+        data.items.reverse().map((msg: IHistory) => ({
+          ...msg,
+          isNewChat: false,
+          isThinking: false,
+          // Với history trả về từ API, coi như là final message
+          isFinal: msg.role === "Ai" ? true : msg.isFinal,
+        }))
+      );
     } catch (error) {
       setLoading(false);
       console.log(error);
@@ -298,12 +315,19 @@ function Chat() {
     const updateHistory = (text: string, isError = false) => {
       setChatHistory((prev) => [
         ...prev
-          .filter((msg) => msg.content !== "Thinking...")
+          .filter(
+            (msg) =>
+              msg.content !== "Thinking..." &&
+              msg.content !== "Đang suy nghĩ" &&
+              msg.content !== "Đang trả lời" &&
+              !msg.isThinking &&
+              !msg.isFinal
+          )
           .map((msg) => ({
             ...msg,
             isNewChat: false,
           })),
-        { role: "Ai", content: text, isError, isNewChat: true },
+        { role: "Ai", content: text, isError, isNewChat: true, isFinal: true },
       ]);
     };
 
@@ -363,12 +387,14 @@ function Chat() {
       const decoder = new TextDecoder("utf-8");
       let buffer = "";
 
-      // Tạo aiMessage object duy nhất
-      const aiMessage = {
+      // Tạo aiMessage object duy nhất (nội bộ để lưu final)
+      const aiMessage: IHistory = {
         content: "",
         role: "Ai",
         isError: false,
         isNewChat: true,
+        isThinking: false,
+        isFinal: false,
       };
 
       while (true) {
@@ -384,33 +410,60 @@ function Chat() {
           try {
             const data = JSON.parse(line);
 
-            if (data.type === "in-progress") {
-              // Accumulate content
+            if (data.type === "thinking") {
+              // Show thinking status with assistant name
+              setChatHistory((prev) => {
+                const thinkingMsg: IHistory = {
+                  role: "Ai",
+                  content: `Đang hỏi ${data.name}...`,
+                  isError: false,
+                  isNewChat: true,
+                  isThinking: true,
+                  isFinal: false,
+                };
+
+                if (prev.length > 0 && prev[prev.length - 1].role === "Ai") {
+                  return [...prev.slice(0, -1), thinkingMsg];
+                } else {
+                  return [
+                    ...prev.map((msg) => ({ ...msg, isNewChat: false })),
+                    thinkingMsg,
+                  ];
+                }
+              });
+            } else if (data.type === "in-progress") {
+              // Hiển thị nội dung stream và giữ label "Đang trả lời..." ở UI (hiển thị tại ChatMessage)
               aiMessage.content += data.text || "";
 
-              // Update UI chỉ khi có content thật sự
-              if (aiMessage.content.trim()) {
+              if ((aiMessage.content || "").trim()) {
                 setChatHistory((prev) => {
                   if (prev.length > 0 && prev[prev.length - 1].role === "Ai") {
-                    return [...prev.slice(0, -1), { ...aiMessage }];
+                    return [
+                      ...prev.slice(0, -1),
+                      { ...aiMessage, isThinking: false, isFinal: false },
+                    ];
                   } else {
                     return [
                       ...prev.map((msg) => ({ ...msg, isNewChat: false })),
-                      { ...aiMessage },
+                      { ...aiMessage, isThinking: false, isFinal: false },
                     ];
                   }
                 });
               }
             } else if (data.type === "final") {
               aiMessage.content = data.text || aiMessage.content;
+              aiMessage.assistantAgents = data.assistantAgents || [];
 
               setChatHistory((prev) => {
                 if (prev.length > 0 && prev[prev.length - 1].role === "Ai") {
-                  return [...prev.slice(0, -1), { ...aiMessage }];
+                  return [
+                    ...prev.slice(0, -1),
+                    { ...aiMessage, isThinking: false, isFinal: true },
+                  ];
                 } else {
                   return [
                     ...prev.map((msg) => ({ ...msg, isNewChat: false })),
-                    { ...aiMessage },
+                    { ...aiMessage, isThinking: false, isFinal: true },
                   ];
                 }
               });
@@ -428,7 +481,14 @@ function Chat() {
     } catch (error: any) {
       setChatHistory((prev) => {
         // Xóa thinking nếu có
-        const filtered = prev.filter((msg) => msg.content !== "Thinking...");
+        const filtered = prev.filter(
+          (msg) =>
+            msg.content !== "Thinking..." &&
+            msg.content !== "Đang suy nghĩ" &&
+            msg.content !== "Đang trả lời" &&
+            !msg.isThinking &&
+            !msg.isFinal
+        );
         return [
           ...filtered.map((msg) => ({ ...msg, isNewChat: false })),
           {
@@ -436,6 +496,7 @@ function Chat() {
             content: error.message,
             isError: true,
             isNewChat: true,
+            isFinal: true,
           },
         ];
       });
@@ -519,11 +580,16 @@ function Chat() {
     // Scroll sau khi thêm user message
     scrollToBottomDelayed();
 
-    // Thêm "Thinking..." message sau 600ms (giống ChatForm)
+    // Thêm trạng thái thinking sau 600ms (giống ChatForm)
     setTimeout(() => {
       setChatHistory((prev) => [
         ...prev.map((h) => ({ ...h, isNewChat: false })),
-        { role: "Ai", content: "Thinking..." },
+        {
+          role: "Ai",
+          content: "Đang suy nghĩ",
+          isThinking: true,
+          isFinal: false,
+        },
       ]);
 
       // Scroll sau khi thêm thinking message
@@ -541,7 +607,12 @@ function Chat() {
 
   const handleMessageCopy = () => {
     setShowCopiedToast(true);
-    setTimeout(() => setShowCopiedToast(false), 1300);
+    setTimeout(() => setShowCopiedToast(false), 3000);
+  };
+
+  const handleMessageBricked = () => {
+    setShowBrickedToast(true);
+    setTimeout(() => setShowBrickedToast(false), 3000);
   };
 
   return (
@@ -627,6 +698,28 @@ function Chat() {
         </div>
       )}
 
+      {showBrickedToast && (
+        <div
+          style={{
+            position: "absolute",
+            zIndex: 200,
+            left: "50%",
+            top: "42%",
+            transform: "translate(-50%, -50%)",
+            background: "rgba(0,0,0,0.74)",
+            color: "#fff",
+            borderRadius: 6,
+            padding: "2px 10px",
+            fontSize: 13,
+            fontWeight: 500,
+            pointerEvents: "none",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+          }}
+        >
+          Cảm ơn đã góp gạch xây nhà!
+        </div>
+      )}
+
       <div ref={chatBodyRef} className="chat-body">
         {!chatHistory.length && !loading && (
           <div className="item-message bot-message">
@@ -656,6 +749,7 @@ function Chat() {
             onCopy={handleMessageCopy}
             onLike={handleLike}
             onBrick={handleBrick}
+            onBricked={handleMessageBricked}
           />
         ))}
       </div>

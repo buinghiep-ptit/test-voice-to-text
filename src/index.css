@@ -543,7 +543,7 @@ body #root {
 }
 
 .dot-container {
-  background: rgb(244, 244, 245);
+  background: transparent!;
   height: 24px;
   width: 48px;
   border-radius: 8px 8px 8px 0;
@@ -551,7 +551,6 @@ body #root {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 4px;
 }
 
 .dot {

@@ -9,10 +9,10 @@ import { preprocessLaTeX } from "../utils/latex";
 import "katex/dist/katex.min.css";
 import "./message.css";
 import moment from "moment";
-import DotLoading from "./DotLoading";
 import MessageActions from "./MessageActions";
 import { IHistory } from "../pages/Chat";
 import React, { useEffect, useState } from "react";
+import DotLoading from "./DotLoading";
 
 interface ChatMessageProps {
   chat: IHistory;
@@ -25,6 +25,7 @@ interface ChatMessageProps {
   onCopy?: (text: string) => void;
   onLike?: (messageId: number, action: number) => void;
   onBrick?: (messageId: number, action: number, comment: string) => void;
+  onBricked?: () => void;
 }
 
 const ChatMessage = ({
@@ -35,6 +36,7 @@ const ChatMessage = ({
   onCopy,
   onLike,
   onBrick,
+  onBricked,
 }: ChatMessageProps) => {
   const [displayedText, setDisplayedText] = useState("");
   const isToday = moment(chat.dateCreated || new Date()).isSame(
@@ -72,11 +74,9 @@ const ChatMessage = ({
       // If not AI or "Thinking...", set text immediately
       setDisplayedText(chat.content || "");
     }
-  }, [chat.content, chat.isNewChat, chat.role, onTypeProgress]);
+  }, [chat.content, chat.isNewChat, chat.role, onTypeProgress, isStream]);
 
-  const replaceLiteralNewlines = (content: string) => {
-    return content.replace(/\n\n/g, "\n\n&nbsp;\n\n"); // Thêm khoảng trắng để Markdown nhận diện đúng
-  };
+  // Removed unused helper replaceLiteralNewlines
 
   const MessageWrapper =
     chat.role === "Ai" && chat.isNewChat ? motion.div : "div";
@@ -108,7 +108,7 @@ const ChatMessage = ({
         style={{ width: "100%" }}
         className={`${chat.role === "Ai" ? "bot" : "user"}-message`}
       >
-        {chat.role == "Ai" && chat.content !== "Thinking..." && (
+        {chat.role == "Ai" && chat.isFinal && (
           <div className="time-message">
             <span style={{ fontWeight: 600 }}>{botInfo?.name}</span>{" "}
             <span style={{ color: "#6B7280" }}>
@@ -120,127 +120,112 @@ const ChatMessage = ({
             </span>
           </div>
         )}
-        {chat.content === "Thinking..." ? (
-          <DotLoading />
-        ) : (
-          <div
-            className="message-text"
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              overflowX: "auto",
-              position: "relative",
-            }}
-          >
-            {!chat.isNewChat ? (
-              <Markdown
-                remarkPlugins={[
-                  remarkGfm,
-                  [remarkMath, { singleDollarTextMath: false }],
-                ]}
-                rehypePlugins={[rehypeRaw, rehypeKatex]}
-                components={{
-                  a: ({ node, ...props }) => {
-                    const isInIframe =
-                      typeof window !== "undefined" &&
-                      window.self !== window.top; // Kiểm tra nếu trong iframe
-
-                    return (
-                      <a
-                        {...props}
-                        target={isInIframe ? "_blank" : "_self"}
-                        rel="noopener noreferrer"
-                        className="text-blue-600 underline hover:text-blue-800 transition-all"
-                      >
-                        {props.children}
-                      </a>
-                    );
-                  },
-                  img: ({ node, ...props }) => {
-                    // Tạo một handler để mở ảnh trong tab mới khi click
-                    const handleImageClick = (src: string) => {
-                      window.open(src, "_blank", "noopener,noreferrer");
-                    };
-
-                    return (
-                      <img
-                        {...props}
-                        className="cursor-pointer max-w-full hover:opacity-90 transition-opacity"
-                        onClick={() => handleImageClick(props.src || "")}
-                        style={{ maxWidth: "100%" }}
-                        title={`Click để xem ảnh đầy đủ trong tab mới (${
-                          props.alt || "Ảnh"
-                        })`}
-                      />
-                    );
-                  },
-                }}
-              >
-                {preprocessLaTeX(replaceLiteralNewlines(chat.content || ""))}
-              </Markdown>
-            ) : (
-              <Markdown
-                remarkPlugins={[
-                  remarkGfm,
-                  [remarkMath, { singleDollarTextMath: false }],
-                ]}
-                rehypePlugins={[rehypeRaw, rehypeKatex]}
-                components={{
-                  a: ({ node, ...props }) => {
-                    const isInIframe =
-                      typeof window !== "undefined" &&
-                      window.self !== window.top; // Kiểm tra nếu trong iframe
-
-                    return (
-                      <a
-                        {...props}
-                        target={isInIframe ? "_blank" : "_self"}
-                        rel="noopener noreferrer"
-                        className="text-blue-600 underline hover:text-blue-800 transition-all"
-                      >
-                        {props.children}
-                      </a>
-                    );
-                  },
-
-                  img: ({ node, ...props }) => {
-                    // Tạo một handler để mở ảnh trong tab mới khi click
-                    const handleImageClick = (src: string) => {
-                      window.open(src, "_blank", "noopener,noreferrer");
-                    };
-
-                    return (
-                      <img
-                        {...props}
-                        className="cursor-pointer max-w-full hover:opacity-90 transition-opacity"
-                        onClick={() => handleImageClick(props.src || "")}
-                        style={{ maxWidth: "100%" }}
-                        title={`Click để xem ảnh đầy đủ trong tab mới (${
-                          props.alt || "Ảnh"
-                        })`}
-                      />
-                    );
-                  },
-                }}
-              >
-                {preprocessLaTeX(
-                  !isStream ? displayedText : chat?.content || ""
-                )}
-              </Markdown>
-            )}
+        {chat.role == "Ai" && !chat.isFinal && (
+          <div className="flex items-center">
+            <div className="time-message">
+              <span style={{ fontWeight: 600 }}>{botInfo?.name}</span>{" "}
+              <span style={{ color: "#6B7280" }}>
+                {chat.isThinking
+                  ? chat.content?.startsWith("Đang hỏi")
+                    ? chat.content
+                    : "Đang suy nghĩ..."
+                  : "Đang trả lời..."}
+              </span>
+            </div>
+            <DotLoading />
           </div>
         )}
+        <div
+          className={`message-text ${chat.isThinking ? "!hidden" : ""}`}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            overflowX: "auto",
+            position: "relative",
+          }}
+        >
+          {/* Hide body text during thinking to avoid duplicate labels with header */}
+          {!(chat.role === "Ai" && chat.isThinking) && (
+            <Markdown
+              remarkPlugins={[
+                remarkGfm,
+                [remarkMath, { singleDollarTextMath: false }],
+              ]}
+              rehypePlugins={[rehypeRaw, rehypeKatex]}
+              components={{
+                a: ({ node, ...props }) => {
+                  const isInIframe =
+                    typeof window !== "undefined" && window.self !== window.top; // Kiểm tra nếu trong iframe
 
-        {/* Action buttons for bot messages */}
-        {chat.role === "Ai" && chat.content !== "Thinking..." && (
-          <MessageActions
-            content={chat.content || displayedText}
-            messageId={chat.id || 0}
-            isLiked={chat.isLiked || 0}
-            onCopy={onCopy || (() => {})}
-            onLike={onLike}
-            onBrick={onBrick}
-          />
+                  return (
+                    <a
+                      {...props}
+                      target={isInIframe ? "_blank" : "_self"}
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline hover:text-blue-800 transition-all"
+                    >
+                      {props.children}
+                    </a>
+                  );
+                },
+                img: ({ node, ...props }) => {
+                  // Tạo một handler để mở ảnh trong tab mới khi click
+                  const handleImageClick = (src: string) => {
+                    window.open(src, "_blank", "noopener,noreferrer");
+                  };
+
+                  return (
+                    <img
+                      {...props}
+                      className="cursor-pointer max-w-full hover:opacity-90 transition-opacity"
+                      onClick={() => handleImageClick(props.src || "")}
+                      style={{ maxWidth: "100%" }}
+                      title={`Click để xem ảnh đầy đủ trong tab mới (${
+                        props.alt || "Ảnh"
+                      })`}
+                    />
+                  );
+                },
+              }}
+            >
+              {preprocessLaTeX(!isStream ? displayedText : chat?.content || "")}
+            </Markdown>
+          )}
+        </div>
+
+        {chat.role === "Ai" && chat.isFinal && (
+          <div className="flex items-center justify-between !mt-1.5">
+            <MessageActions
+              content={chat.content || displayedText}
+              messageId={chat.id || 0}
+              isLiked={chat.isLiked || 0}
+              onCopy={onCopy || (() => {})}
+              onLike={onLike}
+              onBrick={onBrick}
+              onBricked={onBricked}
+            />
+            {Array.isArray(chat.assistantAgents) &&
+              chat.assistantAgents.length > 0 && (
+                <div className="flex items-center gap-1">
+                  <div className="flex">
+                    {chat.assistantAgents.slice(0, 3).map((agent, idx) => (
+                      <img
+                        key={`${agent.avatar}-${idx}`}
+                        src={agent.avatar}
+                        alt={agent.name}
+                        className={`w-6 h-6 rounded-full border-2 border-white object-cover ${
+                          idx > 0 ? "!-ml-2" : ""
+                        }`}
+                        style={{ zIndex: 30 - idx }}
+                      />
+                    ))}
+                  </div>
+                  <span style={{ color: "#6B7280", fontSize: 12 }}>
+                    {chat.assistantAgents.length} nguồn
+                  </span>
+                </div>
+              )}
+          </div>
         )}
       </div>
     </MessageWrapper>

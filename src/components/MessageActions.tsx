@@ -7,6 +7,7 @@ interface MessageActionsProps {
   onCopy: (text: string) => void;
   onLike?: (messageId: number, action: number) => void;
   onBrick?: (messageId: number, action: number, comment: string) => void;
+  onBricked?: () => void;
 }
 
 const MessageActions: React.FC<MessageActionsProps> = ({
@@ -16,6 +17,7 @@ const MessageActions: React.FC<MessageActionsProps> = ({
   onCopy,
   onLike,
   onBrick,
+  onBricked,
 }) => {
   const [isLikedState, setIsLikedState] = React.useState(isLiked);
   const [showBrickModal, setShowBrickModal] = React.useState(false);
@@ -44,6 +46,7 @@ const MessageActions: React.FC<MessageActionsProps> = ({
       onBrick(messageId, 2, brickComment.trim()); // action = 2 for brick
       setShowBrickModal(false);
       setBrickComment("");
+      if (typeof onBricked === "function") onBricked();
     }
   };
   const handleCopy = (text: string) => {
@@ -115,7 +118,6 @@ const MessageActions: React.FC<MessageActionsProps> = ({
       style={{
         display: "flex",
         alignItems: "center",
-        marginTop: 6,
         marginLeft: 12,
         gap: 10,
         justifyContent: "flex-start",
@@ -134,20 +136,6 @@ const MessageActions: React.FC<MessageActionsProps> = ({
         title="Sao chép"
         className="cursor-pointer"
       >
-        {/* <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#6c757d"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{ opacity: 0.75, transform: "scaleX(-1)" }}
-        >
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-        </svg> */}
         <svg
           width="18"
           height="18"
@@ -213,7 +201,7 @@ const MessageActions: React.FC<MessageActionsProps> = ({
           e.stopPropagation();
           handleBrick();
         }}
-        className="cursor-pointer hidden"
+        className="cursor-pointer"
         title="Ném gạch"
       >
         <svg
@@ -237,79 +225,31 @@ const MessageActions: React.FC<MessageActionsProps> = ({
 
       {/* Brick Comment Modal */}
       {showBrickModal && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-          }}
-          onClick={() => setShowBrickModal(false)}
-        >
+        <div className="modal-overlay" onClick={() => setShowBrickModal(false)}>
           <div
-            style={{
-              backgroundColor: "white",
-              padding: "20px",
-              borderRadius: "8px",
-              width: "90%",
-              maxWidth: "400px",
-            }}
+            className="bg-white rounded-xl p-6! max-w-sm w-full shadow-xl transform transition-all animate-fade-in"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 style={{ margin: "0 0 15px 0", fontSize: "16px" }}>Ném gạch</h3>
+            <h3 className="modal-title font-semibold! mb-4!">Ném gạch</h3>
             <textarea
               value={brickComment}
               onChange={(e) => setBrickComment(e.target.value)}
-              placeholder="Nhập lý do ném gạch (1-2000 ký tự)..."
-              style={{
-                width: "100%",
-                height: "100px",
-                padding: "10px",
-                border: "1px solid #ddd",
-                borderRadius: "4px",
-                resize: "vertical",
-                fontSize: "14px",
-                marginBottom: "15px",
-              }}
+              placeholder="Nhập câu trả lời, góp ý..."
+              className="w-full h-28 !p-2 !border !border-gray-200 !rounded-md !resize-y !text-sm !mb-4"
             />
-            <div
-              style={{
-                display: "flex",
-                gap: "10px",
-                justifyContent: "flex-end",
-              }}
-            >
+            <div className="flex justify-end space-x-3!">
               <button
                 onClick={() => {
                   setShowBrickModal(false);
                   setBrickComment("");
                 }}
-                style={{
-                  padding: "8px 16px",
-                  border: "1px solid #ddd",
-                  borderRadius: "4px",
-                  background: "white",
-                  cursor: "pointer",
-                }}
+                className="cursor-pointer px-4! py-2! rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"
               >
-                Hủy
+                Đóng
               </button>
               <button
                 onClick={handleBrickSubmit}
-                style={{
-                  padding: "8px 16px",
-                  border: "none",
-                  borderRadius: "4px",
-                  background: "#dc3545",
-                  color: "white",
-                  cursor: "pointer",
-                }}
+                className="cursor-pointer px-4! py-2! rounded-xl bg-red-600 hover:bg-red-700 text-white transition-colors"
               >
                 Gửi
               </button>

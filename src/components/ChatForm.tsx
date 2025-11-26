@@ -10,6 +10,9 @@ export interface IHistory {
   content?: string;
   isError?: boolean;
   dateCreated?: string;
+  isNewChat?: boolean;
+  isThinking?: boolean;
+  isFinal?: boolean;
 }
 
 const ChatForm = ({ setChatHistory, generateBotResponse }: Props) => {
@@ -42,7 +45,13 @@ const ChatForm = ({ setChatHistory, generateBotResponse }: Props) => {
     setTimeout(() => {
       setChatHistory((history: IHistory[]) => [
         ...[...history.map((h) => ({ ...h, isNewChat: false }))],
-        { role: "Ai", content: "Thinking..." },
+        {
+          role: "Ai",
+          content: "Đang suy nghĩ",
+          isThinking: true,
+          isNewChat: true,
+          isFinal: false,
+        },
       ]);
 
       generateBotResponse({ role: "Human", content: userMessage });
