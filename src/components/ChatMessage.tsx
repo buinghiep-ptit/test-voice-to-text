@@ -12,7 +12,8 @@ import moment from "moment";
 import MessageActions from "./MessageActions";
 import { IHistory } from "../pages/Chat";
 import React, { useEffect, useState } from "react";
-import DotLoading from "./DotLoading";
+import SimpleStarLoading from "./AiLoader";
+import TextGradientAnim from "./TextGradientAnim";
 
 interface ChatMessageProps {
   chat: IHistory;
@@ -95,15 +96,18 @@ const ChatMessage = ({
           }
         : {})}
     >
-      {chat.role === "Ai" && (
-        <img
-          src={
-            botInfo?.avatar || "/ai-agent/sdk/assets/images/chang-avatar.jpg"
-          }
-          alt="ic"
-          className="w-8 h-8 rounded-full object-cover"
-        />
-      )}
+      {chat.role === "Ai" &&
+        (!chat.isFinal ? (
+          <SimpleStarLoading size={32} />
+        ) : (
+          <img
+            src={
+              botInfo?.avatar || "/ai-agent/sdk/assets/images/chang-avatar.jpg"
+            }
+            alt="ic"
+            className="w-8 h-8 rounded-full object-cover"
+          />
+        ))}
 
       <div
         style={{ width: "100%" }}
@@ -122,19 +126,10 @@ const ChatMessage = ({
           </div>
         )}
         {chat.role == "Ai" && !chat.isFinal && (
-          <div className="flex items-center">
-            <div className="time-message">
-              <span style={{ fontWeight: 600 }}>{botInfo?.name}</span>{" "}
-              <span style={{ color: "#6B7280" }}>
-                {chat.isThinking
-                  ? chat.content?.startsWith("Đang hỏi")
-                    ? chat.content
-                    : "Đang suy nghĩ..."
-                  : "Đang trả lời..."}
-              </span>
-            </div>
-            <DotLoading />
-          </div>
+          <TextGradientAnim
+            isThinking={!!chat.isThinking}
+            content={chat.content}
+          />
         )}
         <div
           className={`message-text ${chat.isThinking ? "!hidden" : ""}`}
@@ -292,7 +287,9 @@ const MemoizedChatMessage = React.memo(ChatMessage, (prevProps, nextProps) => {
     prevProps.chat.isNewChat === nextProps.chat.isNewChat &&
     prevProps.botInfo?.name === nextProps.botInfo?.name &&
     prevProps.botInfo?.avatar === nextProps.botInfo?.avatar &&
-    prevProps.isStream === nextProps.isStream
+    prevProps.isStream === nextProps.isStream &&
+    prevProps.chat.isThinking === nextProps.chat.isThinking &&
+    prevProps.chat.isFinal === nextProps.chat.isFinal
   );
 });
 
