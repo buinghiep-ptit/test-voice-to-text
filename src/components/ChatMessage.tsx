@@ -220,7 +220,7 @@ const ChatMessage = ({
                     ))}
                   </div>
                   <span style={{ color: "#6B7280", fontSize: 12 }}>
-                    {chat.assistantAgents.length} nguồn
+                    {chat.assistantAgents.length} đã tham gia
                   </span>
                 </div>
               )}
@@ -242,7 +242,7 @@ const ChatMessage = ({
                 onClick={(e) => e.stopPropagation()}
               >
                 <h3 className="modal-title font-semibold! mb-4!">
-                  Nguồn tham khảo
+                  Đã tham gia
                 </h3>
                 <div className="flex flex-col gap-3 max-h-64 overflow-y-auto">
                   {chat.assistantAgents.map((agent, idx) => (
