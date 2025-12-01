@@ -220,7 +220,8 @@ const ChatMessage = ({
                     ))}
                   </div>
                   <span style={{ color: "#6B7280", fontSize: 12 }}>
-                    {chat.assistantAgents.length} đã tham gia
+                    {/* {chat.assistantAgents.length}  */}
+                    đã tham gia
                   </span>
                 </div>
               )}
