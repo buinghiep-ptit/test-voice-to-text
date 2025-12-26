@@ -1,23 +1,55 @@
 import React, { useState } from "react";
+import "./TabBar.css";
 
 interface TabBarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   onTabClick: (tab: string) => void;
+  foxskill?: string | null;
+}
+
+interface ReactNativeWebViewWindow extends Window {
+  ReactNativeWebView?: {
+    postMessage: (data: string) => void;
+  };
 }
 
 const TabBar: React.FC<TabBarProps> = ({
   activeTab,
   onTabChange,
   onTabClick,
+  foxskill,
 }) => {
   const tabs = [
+    ...(foxskill ? [{ id: "foxskill", label: "Học cùng chang" }] : []),
     { id: "info", label: "Tra cứu HĐ" },
     { id: "service", label: "Tra cứu FPT Play" },
     { id: "task", label: "Xử lý tác vụ" },
   ];
 
   const [isExpanded, setIsExpanded] = useState(true);
+
+  const handleFoxskillTabClick = () => {
+    // Send postMessage to React Native
+    const reactNativeWebView = (window as ReactNativeWebViewWindow)
+      .ReactNativeWebView;
+    if (reactNativeWebView) {
+      reactNativeWebView.postMessage(
+        JSON.stringify({
+          type: "FOXSKILL",
+          value: "OPEN_FOXSKILL",
+        })
+      );
+    } else if (window.parent) {
+      window.parent.postMessage(
+        {
+          type: "FOXSKILL",
+          value: "OPEN_FOXSKILL",
+        },
+        "*"
+      );
+    }
+  };
 
   const handleExpandClick = () => {
     setIsExpanded((prev) => !prev);
@@ -76,6 +108,8 @@ const TabBar: React.FC<TabBarProps> = ({
           opacity: isExpanded ? 1 : 0,
           pointerEvents: isExpanded ? "auto" : "none",
           transition: "max-height 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.2s",
+          overflowX: "auto",
+          whiteSpace: "nowrap",
         }}
       >
         {tabs.map((tab) => (
@@ -83,8 +117,15 @@ const TabBar: React.FC<TabBarProps> = ({
             key={tab.id}
             className={`tab-item ${activeTab === tab.id ? "active" : ""}`}
             onClick={() => {
-              onTabChange(tab.id);
-              onTabClick(tab.id);
+              if (tab.id === "foxskill") {
+                handleFoxskillTabClick();
+              } else {
+                onTabChange(tab.id);
+                onTabClick(tab.id);
+              }
+            }}
+            style={{
+              whiteSpace: "nowrap",
             }}
           >
             {tab.label}

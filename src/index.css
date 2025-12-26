@@ -118,7 +118,7 @@ body #root {
   top: 0px;
   z-index: 100;
   padding: 4px 16px;
-  gap: 4px;
+  gap: 8px;
   width: 100%;
 }
 
@@ -136,7 +136,7 @@ body #root {
   transition: all 0.2s ease;
   border-radius: 20px;
   position: relative;
-  padding: 8px 4px;
+  padding: 8px 12px;
   border: 1px solid #e9ecef;
 }
 

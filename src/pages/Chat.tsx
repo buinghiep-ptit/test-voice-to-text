@@ -43,6 +43,7 @@ function Chat() {
   const isCustomBotInfo = true;
   const isStream = true; //searchParams.get("isStream");
   const isWebview = searchParams.get("isWebview");
+  const isFoxskill = searchParams.get("foxskill");
 
   const decodeToken = tenantId ? decodeURIComponent(tenantId) : "";
 
@@ -659,6 +660,7 @@ function Chat() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
         onTabClick={handleTabClick}
+        foxskill={isFoxskill}
       />
 
       {/* Query Modal */}
