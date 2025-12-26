@@ -21,7 +21,7 @@ const TabBar: React.FC<TabBarProps> = ({
   foxskill,
 }) => {
   const tabs = [
-    ...(foxskill ? [{ id: "foxskill", label: "Học cùng chang" }] : []),
+    ...(foxskill ? [{ id: "foxskill", label: "Học cùng Chang" }] : []),
     { id: "info", label: "Tra cứu HĐ" },
     { id: "service", label: "Tra cứu FPT Play" },
     { id: "task", label: "Xử lý tác vụ" },
