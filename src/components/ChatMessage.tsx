@@ -43,7 +43,7 @@ const ChatMessage = ({
   const [showSources, setShowSources] = useState(false);
   const isToday = moment(chat.dateCreated || new Date()).isSame(
     moment(),
-    "day"
+    "day",
   );
 
   useEffect(() => {
@@ -126,10 +126,18 @@ const ChatMessage = ({
           </div>
         )}
         {chat.role == "Ai" && !chat.isFinal && (
-          <TextGradientAnim
-            isThinking={!!chat.isThinking}
-            content={chat.content}
-          />
+          <>
+            <TextGradientAnim
+              isThinking={!!chat.isThinking}
+              content={chat.content}
+            />
+            {!!chat.isThinking && !!chat.thinkingLabel && (
+              <TextGradientAnim
+                isThinking={!!chat.isThinking}
+                content={chat.thinkingLabel}
+              />
+            )}
+          </>
         )}
         <div
           className={`message-text ${chat.isThinking ? "!hidden" : ""}`}

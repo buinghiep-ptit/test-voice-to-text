@@ -25,6 +25,7 @@ export interface IHistory {
   isFinal?: boolean;
   isLiked?: number; // 1 = liked, 0 = not liked
   assistantAgents?: { name: string; avatar: string }[];
+  thinkingLabel?: string;
 }
 
 function Chat() {
@@ -67,7 +68,7 @@ function Chat() {
           data: "Data from chat-frame",
           target: "chat-frame",
         },
-        "*"
+        "*",
       );
     }
   };
@@ -80,7 +81,7 @@ function Chat() {
         target: "bubble-frame",
         isOpen: false,
       },
-      "*"
+      "*",
     );
   };
 
@@ -91,7 +92,7 @@ function Chat() {
         data: "Data from chat-frame",
         target: "bubble-frame",
       },
-      "*"
+      "*",
     );
   }, []);
 
@@ -106,7 +107,7 @@ function Chat() {
             data: "Data from chat-frame",
             target: "bubble-frame",
           },
-          "*"
+          "*",
         );
       }
     };
@@ -134,7 +135,7 @@ function Chat() {
           body: JSON.stringify({
             data: token,
           }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -161,7 +162,7 @@ function Chat() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       const data = await response.json();
@@ -188,7 +189,7 @@ function Chat() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${userToken}`,
           },
-        }
+        },
       );
       const data = await response.json();
       if (!response.ok)
@@ -220,7 +221,7 @@ function Chat() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${userToken}`,
           },
-        }
+        },
       );
       const data = await response.json();
       setLoading(false);
@@ -235,7 +236,7 @@ function Chat() {
           isThinking: false,
           // Với history trả về từ API, coi như là final message
           isFinal: msg.role === "Ai" ? true : msg.isFinal,
-        }))
+        })),
       );
     } catch (error) {
       setLoading(false);
@@ -260,15 +261,15 @@ function Chat() {
             action: action,
             comment: null,
           }),
-        }
+        },
       );
 
       if (response.ok) {
         // Update the message in chat history
         setChatHistory((prev) =>
           prev.map((msg) =>
-            msg.id === messageId ? { ...msg, isLiked: 1 } : msg
-          )
+            msg.id === messageId ? { ...msg, isLiked: 1 } : msg,
+          ),
         );
       } else {
         console.error("Like failed:", response.statusText);
@@ -281,7 +282,7 @@ function Chat() {
   const handleBrick = async (
     messageId: number,
     action: number,
-    comment: string
+    comment: string,
   ) => {
     try {
       const response = await fetch(
@@ -298,7 +299,7 @@ function Chat() {
             action: action,
             comment: comment,
           }),
-        }
+        },
       );
 
       if (response.ok) {
@@ -322,7 +323,7 @@ function Chat() {
               msg.content !== "Đang suy nghĩ" &&
               msg.content !== "Đang trả lời" &&
               !msg.isThinking &&
-              !msg.isFinal
+              !msg.isFinal,
           )
           .map((msg) => ({
             ...msg,
@@ -346,7 +347,7 @@ function Chat() {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_APP_URL}/api/sdk/chat`,
-        requestOptions
+        requestOptions,
       );
 
       const data = await response.json();
@@ -372,7 +373,7 @@ function Chat() {
           body: JSON.stringify({
             text: history.content,
           }),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -421,6 +422,7 @@ function Chat() {
                   isNewChat: true,
                   isThinking: true,
                   isFinal: false,
+                  thinkingLabel: data.type === "thinking" ? `${data.text}` : "",
                 };
 
                 if (prev.length > 0 && prev[prev.length - 1].role === "Ai") {
@@ -488,7 +490,7 @@ function Chat() {
             msg.content !== "Đang suy nghĩ" &&
             msg.content !== "Đang trả lời" &&
             !msg.isThinking &&
-            !msg.isFinal
+            !msg.isFinal,
         );
         return [
           ...filtered.map((msg) => ({ ...msg, isNewChat: false })),

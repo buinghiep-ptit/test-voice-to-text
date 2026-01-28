@@ -7,7 +7,7 @@ type Props = {
 
 const TextGradientAnim: React.FC<Props> = ({ isThinking, content }) => {
   const label = isThinking
-    ? content?.startsWith("Đang hỏi")
+    ? content && content.trim().length > 0
       ? content
       : "Đang suy nghĩ..."
     : "Đang trả lời...";
