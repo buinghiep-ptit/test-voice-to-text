@@ -248,8 +248,7 @@ function Chat() {
   const handleLike = async (messageId: number, action: number) => {
     try {
       const response = await fetch(
-        `${
-          import.meta.env.VITE_API_APP_URL
+        `${import.meta.env.VITE_API_APP_URL
         }/api/sdk/message/${messageId}/feedback`,
         {
           method: "POST",
@@ -286,8 +285,7 @@ function Chat() {
   ) => {
     try {
       const response = await fetch(
-        `${
-          import.meta.env.VITE_API_APP_URL
+        `${import.meta.env.VITE_API_APP_URL
         }/api/sdk/message/${messageId}/feedback`,
         {
           method: "POST",
@@ -413,27 +411,47 @@ function Chat() {
             const data = JSON.parse(line);
 
             if (data.type === "thinking") {
-              // Show thinking status with assistant name
-              setChatHistory((prev) => {
-                const thinkingMsg: IHistory = {
-                  role: "Ai",
-                  content: `Đang hỏi ${data.name}...`,
-                  isError: false,
-                  isNewChat: true,
-                  isThinking: true,
-                  isFinal: false,
-                  thinkingLabel: data.type === "thinking" ? `${data.text}` : "",
-                };
+              // Kiểm tra nếu đã có nội dung in-progress
+              if (aiMessage.content && aiMessage.content.trim() !== "") {
+                // Nếu có in-progress, thêm text của thinking vào content stream với xuống dòng
+                aiMessage.content += "\n\n" + (data.text || "");
 
-                if (prev.length > 0 && prev[prev.length - 1].role === "Ai") {
-                  return [...prev.slice(0, -1), thinkingMsg];
-                } else {
-                  return [
-                    ...prev.map((msg) => ({ ...msg, isNewChat: false })),
-                    thinkingMsg,
-                  ];
-                }
-              });
+                setChatHistory((prev) => {
+                  if (prev.length > 0 && prev[prev.length - 1].role === "Ai") {
+                    return [
+                      ...prev.slice(0, -1),
+                      { ...aiMessage, isThinking: false, isFinal: false },
+                    ];
+                  } else {
+                    return [
+                      ...prev.map((msg) => ({ ...msg, isNewChat: false })),
+                      { ...aiMessage, isThinking: false, isFinal: false },
+                    ];
+                  }
+                });
+              } else {
+                // Logic cũ: Hiển thị thinking status khi chưa có in-progress
+                setChatHistory((prev) => {
+                  const thinkingMsg: IHistory = {
+                    role: "Ai",
+                    content: `Đang hỏi ${data.name}...`,
+                    isError: false,
+                    isNewChat: true,
+                    isThinking: true,
+                    isFinal: false,
+                    thinkingLabel: data.type === "thinking" ? `${data.text}` : "",
+                  };
+
+                  if (prev.length > 0 && prev[prev.length - 1].role === "Ai") {
+                    return [...prev.slice(0, -1), thinkingMsg];
+                  } else {
+                    return [
+                      ...prev.map((msg) => ({ ...msg, isNewChat: false })),
+                      thinkingMsg,
+                    ];
+                  }
+                });
+              }
             } else if (data.type === "in-progress") {
               // Hiển thị nội dung stream và giữ label "Đang trả lời..." ở UI (hiển thị tại ChatMessage)
               aiMessage.content += data.text || "";
@@ -769,9 +787,8 @@ function Chat() {
           <img
             src="/ai-agent/sdk/assets/images/clear-icon.png"
             alt="ic"
-            className={`w-6 ${
-              chatHistory.length > 0 ? "" : "cursor-not-allowed"
-            }`}
+            className={`w-6 ${chatHistory.length > 0 ? "" : "cursor-not-allowed"
+              }`}
           />
         </button>
       </div>
