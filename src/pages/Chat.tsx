@@ -681,6 +681,7 @@ function Chat() {
         onTabChange={setActiveTab}
         onTabClick={handleTabClick}
         foxskill={isFoxskill}
+        token={userToken}
       />
 
       {/* Query Modal */}
@@ -766,8 +767,6 @@ function Chat() {
             botInfo={botInfo}
             key={index}
             chat={chat}
-            onTypeProgress={scrollToBottom}
-            isStream={!!isStream}
             onCopy={handleMessageCopy}
             onLike={handleLike}
             onBrick={handleBrick}

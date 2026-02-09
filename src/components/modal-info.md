@@ -36,3 +36,89 @@
 | --- | ------------------------------- | ---------------------------------------------------------- |
 | 1   | Clear checklist bảo trì tạo sai | Clear checklist {số HĐ} → Ví dụ: Clear checklist HNH661487 |
 | 2   | Clear tín hiệu online NET       | _Chuẩn bị golive_ → (không có ví dụ cụ thể)                |
+
+
+
+## api get Category FAQ
+
+```
+GET /admin/api/faq-category
+```
+
+response example:
+
+```
+[
+	{
+		"id": 6,
+		"name": "Bán hàng 123"
+	},
+	{
+		"id": 13,
+		"name": "Kỹ thuật"
+	},
+	{
+		"id": 14,
+		"name": "Y tế"
+	},
+	{
+		"id": 15,
+		"name": "Giáo dục"
+	},
+	{
+		"id": 16,
+		"name": "Thể thao"
+	}
+]
+```     
+
+
+## api List question / answer by Category FAQ
+
+```
+GET /admin/api/faq-category/{id}/faqs
+```
+
+response example:
+
+{
+	"data": [
+		{
+			"id": 7,
+			"question": "Làm gì để bán 9 tỷ gói mè",
+			"answer": "chém thằng ra câu hỏi"
+		},
+		{
+			"id": 6,
+			"question": "Làm gì để bán 5 tỷ gói mè",
+			"answer": "chém thằng ra câu hỏi"
+		},
+		{
+			"id": 5,
+			"question": "Làm gì để bán 4 tỷ gói mè",
+			"answer": "chém thằng ra câu hỏi"
+		},
+		{
+			"id": 4,
+			"question": "Làm gì để bán 3 tỷ gói mè",
+			"answer": "chém thằng ra câu hỏi"
+		},
+		{
+			"id": 3,
+			"question": "Làm gì để bán 2 tỷ gói mè",
+			"answer": "chém thằng ra câu hỏi"
+		},
+		{
+			"id": 2,
+			"question": "Làm gì để bán 1 tỷ gói mè",
+			"answer": "chém thằng ra câu hỏi"
+		},
+		{
+			"id": 1,
+			"question": "Làm gì để bán 20 tỷ gói mè",
+			"answer": "chém thằng ra câu hỏi"
+		}
+	],
+	"nextLastId": null,
+	"hasNext": false
+}

@@ -1,24 +1,22 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { motion } from "framer-motion";
+import "katex/dist/katex.min.css";
+import moment from "moment";
+import React, { useState } from "react";
 import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
-import { preprocessLaTeX } from "../utils/latex";
-import "katex/dist/katex.min.css";
-import "./message.css";
-import moment from "moment";
-import MessageActions from "./MessageActions";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 import { IHistory } from "../pages/Chat";
-import React, { useEffect, useState } from "react";
+import { preprocessLaTeX } from "../utils/latex";
 import SimpleStarLoading from "./AiLoader";
+import "./message.css";
+import MessageActions from "./MessageActions";
 import TextGradientAnim from "./TextGradientAnim";
 
 interface ChatMessageProps {
   chat: IHistory;
-  onTypeProgress?: () => void;
-  isStream?: boolean;
   botInfo?: {
     name: string;
     avatar: string;
@@ -31,52 +29,49 @@ interface ChatMessageProps {
 
 const ChatMessage = ({
   chat,
-  onTypeProgress,
   botInfo,
-  isStream,
   onCopy,
   onLike,
   onBrick,
   onBricked,
 }: ChatMessageProps) => {
-  const [displayedText, setDisplayedText] = useState("");
   const [showSources, setShowSources] = useState(false);
   const isToday = moment(chat.dateCreated || new Date()).isSame(
     moment(),
     "day",
   );
 
-  useEffect(() => {
-    if (isStream) return;
-    // Reset state when chat content changes
-    setDisplayedText("");
+  // useEffect(() => {
+  //   if (isStream) return;
+  //   // Reset state when chat content changes
+  //   setDisplayedText("");
 
-    if (
-      chat.role === "Ai" &&
-      chat.content &&
-      chat.isNewChat &&
-      chat.content !== "Thinking..."
-    ) {
-      let index = 0;
-      const interval = setInterval(() => {
-        if (index < (chat.content?.length ?? 0)) {
-          const newText = chat.content?.slice(0, index + 1);
-          setDisplayedText(newText!);
-          // Call progress callback
-          onTypeProgress?.();
+  //   if (
+  //     chat.role === "Ai" &&
+  //     chat.content &&
+  //     chat.isNewChat &&
+  //     chat.content !== "Thinking..."
+  //   ) {
+  //     let index = 0;
+  //     const interval = setInterval(() => {
+  //       if (index < (chat.content?.length ?? 0)) {
+  //         const newText = chat.content?.slice(0, index + 1);
+  //         setDisplayedText(newText!);
+  //         // Call progress callback
+  //         onTypeProgress?.();
 
-          index++;
-        } else {
-          clearInterval(interval);
-        }
-      }, 10); // Adjust typing speed here (30ms per character)
+  //         index++;
+  //       } else {
+  //         clearInterval(interval);
+  //       }
+  //     }, 10); // Adjust typing speed here (30ms per character)
 
-      return () => clearInterval(interval);
-    } else {
-      // If not AI or "Thinking...", set text immediately
-      setDisplayedText(chat.content || "");
-    }
-  }, [chat.content, chat.isNewChat, chat.role, onTypeProgress, isStream]);
+  //     return () => clearInterval(interval);
+  //   } else {
+  //     // If not AI or "Thinking...", set text immediately
+  //     setDisplayedText(chat.content || "");
+  //   }
+  // }, [chat.content, chat.isNewChat, chat.role, onTypeProgress, isStream]);
 
   // Removed unused helper replaceLiteralNewlines
 
@@ -85,15 +80,14 @@ const ChatMessage = ({
 
   return (
     <MessageWrapper
-      className={`item-message ${chat.role === "Ai" ? "bot" : "user"}-message ${
-        chat.isError ? "error" : ""
-      }`}
+      className={`item-message ${chat.role === "Ai" ? "bot" : "user"}-message ${chat.isError ? "error" : ""
+        }`}
       {...(chat.role === "Ai" && chat.isNewChat
         ? {
-            initial: { x: -100, opacity: 0 },
-            animate: { x: 0, opacity: 1 },
-            transition: { type: "spring", stiffness: 50, damping: 10 },
-          }
+          initial: { x: -100, opacity: 0 },
+          animate: { x: 0, opacity: 1 },
+          transition: { type: "spring", stiffness: 50, damping: 10 },
+        }
         : {})}
     >
       {chat.role === "Ai" &&
@@ -120,8 +114,8 @@ const ChatMessage = ({
               {isToday
                 ? moment(chat?.dateCreated || new Date()).format("HH:mm")
                 : moment(chat?.dateCreated).format("DD/MM/YYYY") +
-                  " lúc " +
-                  moment(chat?.dateCreated || new Date()).format("HH:mm")}
+                " lúc " +
+                moment(chat?.dateCreated || new Date()).format("HH:mm")}
             </span>
           </div>
         )}
@@ -184,15 +178,14 @@ const ChatMessage = ({
                       className="cursor-pointer max-w-full hover:opacity-90 transition-opacity"
                       onClick={() => handleImageClick(props.src || "")}
                       style={{ maxWidth: "100%" }}
-                      title={`Click để xem ảnh đầy đủ trong tab mới (${
-                        props.alt || "Ảnh"
-                      })`}
+                      title={`Click để xem ảnh đầy đủ trong tab mới (${props.alt || "Ảnh"
+                        })`}
                     />
                   );
                 },
               }}
             >
-              {preprocessLaTeX(!isStream ? displayedText : chat?.content || "")}
+              {preprocessLaTeX(chat?.content || "")}
             </Markdown>
           )}
         </div>
@@ -200,10 +193,10 @@ const ChatMessage = ({
         {chat.role === "Ai" && chat.isFinal && (
           <div className="flex items-center justify-between !mt-1.5">
             <MessageActions
-              content={chat.content || displayedText}
+              content={chat.content || ""}
               messageId={chat.id || 0}
               isLiked={chat.isLiked || 0}
-              onCopy={onCopy || (() => {})}
+              onCopy={onCopy || (() => { })}
               onLike={onLike}
               onBrick={onBrick}
               onBricked={onBricked}
@@ -220,9 +213,8 @@ const ChatMessage = ({
                         key={`${agent.avatar}-${idx}`}
                         src={agent.avatar}
                         alt={agent.name}
-                        className={`w-6 h-6 rounded-full border-2 border-white object-cover ${
-                          idx > 0 ? "!-ml-2" : ""
-                        }`}
+                        className={`w-6 h-6 rounded-full border-2 border-white object-cover ${idx > 0 ? "!-ml-2" : ""
+                          }`}
                         style={{ zIndex: 30 + idx }}
                       />
                     ))}
@@ -296,7 +288,6 @@ const MemoizedChatMessage = React.memo(ChatMessage, (prevProps, nextProps) => {
     prevProps.chat.isNewChat === nextProps.chat.isNewChat &&
     prevProps.botInfo?.name === nextProps.botInfo?.name &&
     prevProps.botInfo?.avatar === nextProps.botInfo?.avatar &&
-    prevProps.isStream === nextProps.isStream &&
     prevProps.chat.isThinking === nextProps.chat.isThinking &&
     prevProps.chat.isFinal === nextProps.chat.isFinal
   );

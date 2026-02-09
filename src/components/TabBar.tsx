@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useEffect } from "react";
 import "./TabBar.css";
+import FAQModal, { FAQCategory } from "./FAQModal";
 
 interface TabBarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   onTabClick: (tab: string) => void;
   foxskill?: string | null;
+  token?: string;
 }
 
 interface ReactNativeWebViewWindow extends Window {
@@ -19,12 +22,54 @@ const TabBar: React.FC<TabBarProps> = ({
   onTabChange,
   onTabClick,
   foxskill,
+  token,
 }) => {
+  const [dynamicCategories, setDynamicCategories] = useState<FAQCategory[]>([]);
+  const [isFAQModalOpen, setIsFAQModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<FAQCategory | null>(
+    null,
+  );
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const baseUrl = import.meta.env.VITE_API_APP_URL || "";
+        const response = await fetch(`${baseUrl}/api/sdk/faq-category`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${
+              token ||
+              "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhZ2VudF91c2VyX2lkX2tleSI6MTQ3LCJhdXRoIjoic3VwZXJfYWRtaW4iLCJlbWFpbCI6InN0YWdfaG9hbmdudjEzNEBmcHQuY29tIiwib3JnYW5pemF0aW9uIjoiRlRFTC9GVEVMSU1VL0RTQy9EU0NSQS8iLCJpYXQiOjE3NzA1NDg1MjYsImV4cCI6MTc3MDU5MTcyNn0.x9JVhJetOh_XVGnFztsVeSYIzvsyZ1XUgrJhIX0yVDj6KDJbExX2hJhT5g0BOAutqteYcD-bUnbPExvF2V0QKg"
+            }`,
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setDynamicCategories(
+            Array.isArray(data) ? data : data.data ? data.data : [],
+          );
+        }
+      } catch (error) {
+        console.error("Failed to fetch FAQ categories", error);
+      }
+    };
+
+    if (token) {
+      fetchCategories();
+    }
+  }, [token]);
+
   const tabs = [
     ...(foxskill ? [{ id: "foxskill", label: "Học cùng Chang" }] : []),
     { id: "info", label: "Tra cứu HĐ" },
     { id: "service", label: "Tra cứu FPT Play" },
     { id: "task", label: "Xử lý tác vụ" },
+    ...dynamicCategories.map((cat) => ({
+      id: `faq-${cat.id}`,
+      label: cat.name,
+      isDynamic: true,
+      data: cat,
+    })),
   ];
 
   const [isExpanded, setIsExpanded] = useState(true);
@@ -38,7 +83,7 @@ const TabBar: React.FC<TabBarProps> = ({
         JSON.stringify({
           type: "FOXSKILL",
           value: "OPEN_FOXSKILL",
-        })
+        }),
       );
     } else if (window.parent) {
       window.parent.postMessage(
@@ -46,7 +91,7 @@ const TabBar: React.FC<TabBarProps> = ({
           type: "FOXSKILL",
           value: "OPEN_FOXSKILL",
         },
-        "*"
+        "*",
       );
     }
   };
@@ -56,83 +101,97 @@ const TabBar: React.FC<TabBarProps> = ({
   };
 
   return (
-    <div className="tab-bar-container">
-      <button
-        className="expand-toggle-btn"
-        style={{
-          background: "none",
-          border: "none",
-          marginLeft: 0,
-          marginBottom: "6px",
-          marginTop: "16px",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          gap: "2px",
-          fontWeight: 600,
-          fontSize: "1rem",
-          color: "rgb(32, 59, 220)",
-          transition: "background 0.2s, color 0.2s",
-          borderRadius: 6,
-        }}
-        aria-label={isExpanded ? "Thu gọn tab" : "Mở rộng tab"}
-        onClick={handleExpandClick}
-        type="button"
-      >
-        <span>Truy cập nhanh</span>
-        <span
+    <>
+      <div className="tab-bar-container">
+        <button
+          className="expand-toggle-btn"
           style={{
+            background: "none",
+            border: "none",
+            marginLeft: 0,
+            marginBottom: "6px",
+            marginTop: "16px",
+            cursor: "pointer",
             display: "flex",
             alignItems: "center",
-            transition: "transform 0.2s",
-            transform: isExpanded ? "rotate(180deg)" : "none",
+            gap: "2px",
+            fontWeight: 600,
+            fontSize: "1rem",
+            color: "rgb(32, 59, 220)",
+            transition: "background 0.2s, color 0.2s",
+            borderRadius: 6,
           }}
+          aria-label={isExpanded ? "Thu gọn tab" : "Mở rộng tab"}
+          onClick={handleExpandClick}
+          type="button"
         >
-          <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
-            <path
-              d="M6 8L10 12L14 8"
-              stroke="#6c757d"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </span>
-      </button>
-      <div
-        className={`tab-bar tab-bar-expandable${
-          isExpanded ? " expanded" : " !pb-0"
-        }`}
-        style={{
-          maxHeight: isExpanded ? 48 : 0,
-          opacity: isExpanded ? 1 : 0,
-          pointerEvents: isExpanded ? "auto" : "none",
-          transition: "max-height 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.2s",
-          overflowX: "auto",
-          whiteSpace: "nowrap",
-        }}
-      >
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={`tab-item ${activeTab === tab.id ? "active" : ""}`}
-            onClick={() => {
-              if (tab.id === "foxskill") {
-                handleFoxskillTabClick();
-              } else {
-                onTabChange(tab.id);
-                onTabClick(tab.id);
-              }
-            }}
+          <span>Truy cập nhanh</span>
+          <span
             style={{
-              whiteSpace: "nowrap",
+              display: "flex",
+              alignItems: "center",
+              transition: "transform 0.2s",
+              transform: isExpanded ? "rotate(180deg)" : "none",
             }}
           >
-            {tab.label}
-          </button>
-        ))}
+            <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+              <path
+                d="M6 8L10 12L14 8"
+                stroke="#6c757d"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+        </button>
+        <div
+          className={`tab-bar tab-bar-expandable${
+            isExpanded ? " expanded" : " !pb-0"
+          }`}
+          style={{
+            maxHeight: isExpanded ? 48 : 0,
+            opacity: isExpanded ? 1 : 0,
+            pointerEvents: isExpanded ? "auto" : "none",
+            transition:
+              "max-height 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.2s",
+            overflowX: "auto",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              className={`tab-item ${activeTab === tab.id ? "active" : ""}`}
+              onClick={() => {
+                if (tab.id === "foxskill") {
+                  handleFoxskillTabClick();
+                } else if ((tab as any).isDynamic) {
+                  onTabChange(tab.id);
+                  setSelectedCategory((tab as any).data);
+                  setIsFAQModalOpen(true);
+                  // Do NOT call onTabClick to avoid opening the parent's generic modal
+                } else {
+                  onTabChange(tab.id);
+                  onTabClick(tab.id);
+                }
+              }}
+              style={{
+                whiteSpace: "nowrap",
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
+      <FAQModal
+        category={selectedCategory}
+        isOpen={isFAQModalOpen}
+        onClose={() => setIsFAQModalOpen(false)}
+        token={token}
+      />
+    </>
   );
 };
 
