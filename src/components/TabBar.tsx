@@ -37,10 +37,9 @@ const TabBar: React.FC<TabBarProps> = ({
         const response = await fetch(`${baseUrl}/api/sdk/faq-category`, {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${
-              token ||
+            Authorization: `Bearer ${token ||
               "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhZ2VudF91c2VyX2lkX2tleSI6MTQ3LCJhdXRoIjoic3VwZXJfYWRtaW4iLCJlbWFpbCI6InN0YWdfaG9hbmdudjEzNEBmcHQuY29tIiwib3JnYW5pemF0aW9uIjoiRlRFTC9GVEVMSU1VL0RTQy9EU0NSQS8iLCJpYXQiOjE3NzA1NDg1MjYsImV4cCI6MTc3MDU5MTcyNn0.x9JVhJetOh_XVGnFztsVeSYIzvsyZ1XUgrJhIX0yVDj6KDJbExX2hJhT5g0BOAutqteYcD-bUnbPExvF2V0QKg"
-            }`,
+              }`,
           },
         });
         if (response.ok) {
@@ -146,9 +145,8 @@ const TabBar: React.FC<TabBarProps> = ({
           </span>
         </button>
         <div
-          className={`tab-bar tab-bar-expandable${
-            isExpanded ? " expanded" : " !pb-0"
-          }`}
+          className={`tab-bar tab-bar-expandable${isExpanded ? " expanded" : " !pb-0"
+            }`}
           style={{
             maxHeight: isExpanded ? 48 : 0,
             opacity: isExpanded ? 1 : 0,
@@ -188,7 +186,10 @@ const TabBar: React.FC<TabBarProps> = ({
       <FAQModal
         category={selectedCategory}
         isOpen={isFAQModalOpen}
-        onClose={() => setIsFAQModalOpen(false)}
+        onClose={() => {
+          setIsFAQModalOpen(false);
+          onTabChange("");
+        }}
         token={token}
       />
     </>

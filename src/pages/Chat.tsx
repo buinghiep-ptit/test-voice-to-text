@@ -51,7 +51,7 @@ function Chat() {
   const [isMaximized, setIsMaximized] = useState(false);
   const [isShowClearHistoryDialog, setIsShowClearHistoryDialog] =
     useState(false);
-  const [activeTab, setActiveTab] = useState("info");
+  const [activeTab, setActiveTab] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState(customerInfoQueries);
   const [modalTitle, setModalTitle] = useState("Tra cứu hợp đồng");
@@ -687,7 +687,10 @@ function Chat() {
       {/* Query Modal */}
       <QueryModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setActiveTab("");
+        }}
         onSendQuery={handleSendQuery}
         data={modalData}
         title={modalTitle}

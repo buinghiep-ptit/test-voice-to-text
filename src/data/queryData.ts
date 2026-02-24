@@ -162,4 +162,10 @@ export const taskQueries: QueryItem[] = [
     command: "Clear tín hiệu {input}",
     example: "Clear tín hiệu HNH661487",
   },
+  {
+    id: 3,
+    title: "Lấy QR hỗ trợ kỹ thuật",
+    command: "Lấy QR hỗ trợ kỹ thuật {input}",
+    example: "Lấy QR hỗ trợ kỹ thuật HNH661487",
+  },
 ];
