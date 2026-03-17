@@ -1,6 +1,15 @@
 .tab-bar {
   scrollbar-width: none;
   -ms-overflow-style: none;
+  cursor: grab;
+}
+
+.tab-bar:active {
+  cursor: grabbing;
+}
+
+.tab-bar.active-drag {
+  cursor: grabbing;
 }
 
 .tab-bar::-webkit-scrollbar {

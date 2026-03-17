@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./TabBar.css";
 import FAQModal, { FAQCategory } from "./FAQModal";
 
@@ -37,9 +37,10 @@ const TabBar: React.FC<TabBarProps> = ({
         const response = await fetch(`${baseUrl}/api/sdk/faq-category`, {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token ||
+            Authorization: `Bearer ${
+              token ||
               "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhZ2VudF91c2VyX2lkX2tleSI6MTQ3LCJhdXRoIjoic3VwZXJfYWRtaW4iLCJlbWFpbCI6InN0YWdfaG9hbmdudjEzNEBmcHQuY29tIiwib3JnYW5pemF0aW9uIjoiRlRFTC9GVEVMSU1VL0RTQy9EU0NSQS8iLCJpYXQiOjE3NzA1NDg1MjYsImV4cCI6MTc3MDU5MTcyNn0.x9JVhJetOh_XVGnFztsVeSYIzvsyZ1XUgrJhIX0yVDj6KDJbExX2hJhT5g0BOAutqteYcD-bUnbPExvF2V0QKg"
-              }`,
+            }`,
           },
         });
         if (response.ok) {
@@ -72,6 +73,41 @@ const TabBar: React.FC<TabBarProps> = ({
   ];
 
   const [isExpanded, setIsExpanded] = useState(true);
+  const tabBarRef = useRef<HTMLDivElement>(null);
+  const isDown = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
+  const isDragging = useRef(false);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!tabBarRef.current) return;
+    isDown.current = true;
+    isDragging.current = false;
+    tabBarRef.current.classList.add("active-drag");
+    startX.current = e.pageX - tabBarRef.current.offsetLeft;
+    scrollLeft.current = tabBarRef.current.scrollLeft;
+  };
+
+  const handleMouseLeave = () => {
+    isDown.current = false;
+    tabBarRef.current?.classList.remove("active-drag");
+  };
+
+  const handleMouseUp = () => {
+    isDown.current = false;
+    tabBarRef.current?.classList.remove("active-drag");
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDown.current || !tabBarRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - tabBarRef.current.offsetLeft;
+    const walk = (x - startX.current) * 2; // scroll-speed
+    if (Math.abs(walk) > 5) {
+      isDragging.current = true;
+    }
+    tabBarRef.current.scrollLeft = scrollLeft.current - walk;
+  };
 
   const handleFoxskillTabClick = () => {
     // Send postMessage to React Native
@@ -145,8 +181,14 @@ const TabBar: React.FC<TabBarProps> = ({
           </span>
         </button>
         <div
-          className={`tab-bar tab-bar-expandable${isExpanded ? " expanded" : " !pb-0"
-            }`}
+          ref={tabBarRef}
+          className={`tab-bar tab-bar-expandable${
+            isExpanded ? " expanded" : " !pb-0"
+          }`}
+          onMouseDown={handleMouseDown}
+          onMouseLeave={handleMouseLeave}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
           style={{
             maxHeight: isExpanded ? 48 : 0,
             opacity: isExpanded ? 1 : 0,
@@ -155,13 +197,19 @@ const TabBar: React.FC<TabBarProps> = ({
               "max-height 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.2s",
             overflowX: "auto",
             whiteSpace: "nowrap",
+            cursor: isDown.current ? "grabbing" : "pointer",
+            userSelect: isDown.current ? "none" : "auto",
           }}
         >
           {tabs.map((tab) => (
             <button
               key={tab.id}
               className={`tab-item ${activeTab === tab.id ? "active" : ""}`}
-              onClick={() => {
+              onClick={(e) => {
+                if (isDragging.current) {
+                  e.preventDefault();
+                  return;
+                }
                 if (tab.id === "foxskill") {
                   handleFoxskillTabClick();
                 } else if ((tab as any).isDynamic) {
