@@ -274,7 +274,22 @@ const FAQModal: React.FC<FAQModalProps> = ({
                     [remarkMath, { singleDollarTextMath: false }],
                   ]}
                   rehypePlugins={[rehypeRaw, rehypeKatex]}
+                  unwrapDisallowed={false}
                   components={{
+                    p: ({ node, ...props }) => {
+                      return (
+                        <p
+                          {...props}
+                          style={{
+                            whiteSpace: "pre-wrap",
+                            wordBreak: "break-word",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          {props.children}
+                        </p>
+                      );
+                    },
                     a: ({ node, ...props }) => {
                       return (
                         <a
