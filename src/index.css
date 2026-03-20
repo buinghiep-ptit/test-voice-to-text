@@ -116,7 +116,6 @@ body #root {
   display: flex;
   position: sticky;
   top: 0px;
-  z-index: 100;
   padding: 4px 16px;
   gap: 8px;
   width: 100%;

@@ -9,6 +9,7 @@ interface TabBarProps {
   onTabClick: (tab: string) => void;
   foxskill?: string | null;
   token?: string;
+  isWebview?: string | null;
 }
 
 interface ReactNativeWebViewWindow extends Window {
@@ -23,12 +24,15 @@ const TabBar: React.FC<TabBarProps> = ({
   onTabClick,
   foxskill,
   token,
+  isWebview,
 }) => {
   const [dynamicCategories, setDynamicCategories] = useState<FAQCategory[]>([]);
   const [isFAQModalOpen, setIsFAQModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<FAQCategory | null>(
     null,
   );
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -135,6 +139,30 @@ const TabBar: React.FC<TabBarProps> = ({
     setIsExpanded((prev) => !prev);
   };
 
+  const updateArrows = () => {
+    if (tabBarRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = tabBarRef.current;
+      setShowLeftArrow(scrollLeft > 0);
+      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 5);
+    }
+  };
+
+  useEffect(() => {
+    updateArrows();
+    window.addEventListener("resize", updateArrows);
+    return () => window.removeEventListener("resize", updateArrows);
+  }, [tabs.length, isExpanded]);
+
+  const scroll = (direction: "left" | "right") => {
+    if (tabBarRef.current) {
+      const scrollAmount = 200;
+      tabBarRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
   return (
     <>
       <div className="tab-bar-container">
@@ -180,55 +208,110 @@ const TabBar: React.FC<TabBarProps> = ({
             </svg>
           </span>
         </button>
-        <div
-          ref={tabBarRef}
-          className={`tab-bar tab-bar-expandable${
-            isExpanded ? " expanded" : " !pb-0"
-          }`}
-          onMouseDown={handleMouseDown}
-          onMouseLeave={handleMouseLeave}
-          onMouseUp={handleMouseUp}
-          onMouseMove={handleMouseMove}
-          style={{
-            maxHeight: isExpanded ? 48 : 0,
-            opacity: isExpanded ? 1 : 0,
-            pointerEvents: isExpanded ? "auto" : "none",
-            transition:
-              "max-height 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.2s",
-            overflowX: "auto",
-            whiteSpace: "nowrap",
-            cursor: isDown.current ? "grabbing" : "pointer",
-            userSelect: isDown.current ? "none" : "auto",
-          }}
-        >
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              className={`tab-item ${activeTab === tab.id ? "active" : ""}`}
-              onClick={(e) => {
-                if (isDragging.current) {
-                  e.preventDefault();
-                  return;
-                }
-                if (tab.id === "foxskill") {
-                  handleFoxskillTabClick();
-                } else if ((tab as any).isDynamic) {
-                  onTabChange(tab.id);
-                  setSelectedCategory((tab as any).data);
-                  setIsFAQModalOpen(true);
-                  // Do NOT call onTabClick to avoid opening the parent's generic modal
-                } else {
-                  onTabChange(tab.id);
-                  onTabClick(tab.id);
-                }
-              }}
-              style={{
-                whiteSpace: "nowrap",
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="tab-bar-wrapper">
+          <div
+            ref={tabBarRef}
+            className={`tab-bar tab-bar-expandable${
+              isExpanded ? " expanded" : " pb-0!"
+            }`}
+            onMouseDown={handleMouseDown}
+            onMouseLeave={handleMouseLeave}
+            onMouseUp={handleMouseUp}
+            onMouseMove={handleMouseMove}
+            onScroll={updateArrows}
+            style={{
+              maxHeight: isExpanded ? 48 : 0,
+              opacity: isExpanded ? 1 : 0,
+              pointerEvents: isExpanded ? "auto" : "none",
+              transition:
+                "max-height 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.2s",
+              overflowX: "auto",
+              whiteSpace: "nowrap",
+              cursor: isDown.current ? "grabbing" : "pointer",
+              userSelect: isDown.current ? "none" : "auto",
+            }}
+          >
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                className={`tab-item ${activeTab === tab.id ? "active" : ""}`}
+                onClick={(e) => {
+                  if (isDragging.current) {
+                    e.preventDefault();
+                    return;
+                  }
+                  if (tab.id === "foxskill") {
+                    handleFoxskillTabClick();
+                  } else if ((tab as any).isDynamic) {
+                    onTabChange(tab.id);
+                    setSelectedCategory((tab as any).data);
+                    setIsFAQModalOpen(true);
+                    // Do NOT call onTabClick to avoid opening the parent's generic modal
+                  } else {
+                    onTabChange(tab.id);
+                    onTabClick(tab.id);
+                  }
+                }}
+                style={{
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          {tabs.length > 2 && !isWebview && (
+            <>
+              {showLeftArrow && (
+                <div className="nav-arrow-container left">
+                  <button
+                    className="nav-arrow-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      scroll("left");
+                    }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    type="button"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <path
+                        d="M12.5 15L7.5 10L12.5 5"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                  {/* <div className="arrow-gradient-overlay left"></div> */}
+                </div>
+              )}
+              {showRightArrow && (
+                <div className="nav-arrow-container right">
+                  {/* <div className="arrow-gradient-overlay right"></div> */}
+                  <button
+                    className="nav-arrow-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      scroll("right");
+                    }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    type="button"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <path
+                        d="M7.5 15L12.5 10L7.5 5"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
       <FAQModal

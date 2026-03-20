@@ -248,7 +248,8 @@ function Chat() {
   const handleLike = async (messageId: number, action: number) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_APP_URL
+        `${
+          import.meta.env.VITE_API_APP_URL
         }/api/sdk/message/${messageId}/feedback`,
         {
           method: "POST",
@@ -285,7 +286,8 @@ function Chat() {
   ) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_APP_URL
+        `${
+          import.meta.env.VITE_API_APP_URL
         }/api/sdk/message/${messageId}/feedback`,
         {
           method: "POST",
@@ -439,7 +441,8 @@ function Chat() {
                     isNewChat: true,
                     isThinking: true,
                     isFinal: false,
-                    thinkingLabel: data.type === "thinking" ? `${data.text}` : "",
+                    thinkingLabel:
+                      data.type === "thinking" ? `${data.text}` : "",
                   };
 
                   if (prev.length > 0 && prev[prev.length - 1].role === "Ai") {
@@ -682,6 +685,7 @@ function Chat() {
         onTabClick={handleTabClick}
         foxskill={isFoxskill}
         token={userToken}
+        isWebview={isWebview}
       />
 
       {/* Query Modal */}
@@ -789,8 +793,9 @@ function Chat() {
           <img
             src="/ai-agent/sdk/assets/images/clear-icon.png"
             alt="ic"
-            className={`w-6 ${chatHistory.length > 0 ? "" : "cursor-not-allowed"
-              }`}
+            className={`w-6 ${
+              chatHistory.length > 0 ? "" : "cursor-not-allowed"
+            }`}
           />
         </button>
       </div>
