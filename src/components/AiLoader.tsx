@@ -1,5 +1,27 @@
 // SimpleStarLoading.tsx – Ngôi sao với gradient động + vòng tròn xanh tím
-const SimpleStarLoading = ({ size = 80 }: { size?: number }) => {
+const SimpleStarLoading = ({
+  size = 80,
+  isFoxsteps,
+}: {
+  size?: number;
+  isFoxsteps?: boolean;
+}) => {
+  const primaryColor = isFoxsteps ? "#F4811F" : "#3b82f6";
+  const secondaryColor = isFoxsteps ? "#fb923c" : "#8b5cf6";
+  const tertiaryColor = isFoxsteps ? "#fdba74" : "#6366f1";
+
+  const starColors = isFoxsteps
+    ? "#F4811F; #fb923c; #fdba74; #F4811F"
+    : "#60a5fa; #c084fc; #818cf8; #60a5fa";
+
+  const starColorsMid = isFoxsteps
+    ? "#fb923c; #fdba74; #F4811F; #fb923c"
+    : "#a78bfa; #818cf8; #c084fc; #a78bfa";
+
+  const starColorsEnd = isFoxsteps
+    ? "#fdba74; #ffedd5; #fff7ed; #fdba74"
+    : "#c7d2fe; #ddd6fe; #e0e7ff; #c7d2fe";
+
   return (
     <div className="relative" style={{ width: size, height: size }}>
       {/* Vòng loading quay bao ngoài với gradient xanh tím */}
@@ -14,7 +36,7 @@ const SimpleStarLoading = ({ size = 80 }: { size?: number }) => {
           cx="50"
           cy="50"
           r="44"
-          stroke="#e0e7ff"
+          stroke={isFoxsteps ? "#ffedd5" : "#e0e7ff"}
           strokeWidth="6"
           opacity="0.25"
         />
@@ -29,9 +51,9 @@ const SimpleStarLoading = ({ size = 80 }: { size?: number }) => {
         />
         <defs>
           <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#3b82f6" />
-            <stop offset="50%" stopColor="#8b5cf6" />
-            <stop offset="100%" stopColor="#6366f1" />
+            <stop offset="0%" stopColor={primaryColor} />
+            <stop offset="50%" stopColor={secondaryColor} />
+            <stop offset="100%" stopColor={tertiaryColor} />
           </linearGradient>
         </defs>
       </svg>
@@ -47,36 +69,36 @@ const SimpleStarLoading = ({ size = 80 }: { size?: number }) => {
           <linearGradient id="starGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop
               offset="0%"
-              stopColor="#60a5fa"
+              stopColor={isFoxsteps ? "#F4811F" : "#60a5fa"}
               className="animate-color-shift-1"
             >
               <animate
                 attributeName="stop-color"
-                values="#60a5fa; #c084fc; #818cf8; #60a5fa"
+                values={starColors}
                 dur="3s"
                 repeatCount="indefinite"
               />
             </stop>
             <stop
               offset="50%"
-              stopColor="#a78bfa"
+              stopColor={isFoxsteps ? "#fb923c" : "#a78bfa"}
               className="animate-color-shift-2"
             >
               <animate
                 attributeName="stop-color"
-                values="#a78bfa; #818cf8; #c084fc; #a78bfa"
+                values={starColorsMid}
                 dur="3s"
                 repeatCount="indefinite"
               />
             </stop>
             <stop
               offset="100%"
-              stopColor="#c7d2fe"
+              stopColor={isFoxsteps ? "#fdba74" : "#c7d2fe"}
               className="animate-color-shift-3"
             >
               <animate
                 attributeName="stop-color"
-                values="#c7d2fe; #ddd6fe; #e0e7ff; #c7d2fe"
+                values={starColorsEnd}
                 dur="3s"
                 repeatCount="indefinite"
               />

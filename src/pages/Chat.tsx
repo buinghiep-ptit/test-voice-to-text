@@ -45,6 +45,8 @@ function Chat() {
   const isStream = true; //searchParams.get("isStream");
   const isWebview = searchParams.get("isWebview");
   const isFoxskill = searchParams.get("foxskill");
+  const isFoxsteps = searchParams.get("isFoxsteps") === "true";
+  const colorDefault = "rgb(26, 48, 180)";
 
   const decodeToken = tenantId ? decodeURIComponent(tenantId) : "";
 
@@ -686,6 +688,7 @@ function Chat() {
         foxskill={isFoxskill}
         token={userToken}
         isWebview={isWebview}
+        titleColor={isFoxsteps ? "#F4811F" : colorDefault}
       />
 
       {/* Query Modal */}
@@ -698,6 +701,7 @@ function Chat() {
         onSendQuery={handleSendQuery}
         data={modalData}
         title={modalTitle}
+        primaryColor={isFoxsteps ? "#F4811F" : colorDefault}
       />
 
       {loading && (
@@ -778,6 +782,7 @@ function Chat() {
             onLike={handleLike}
             onBrick={handleBrick}
             onBricked={handleMessageBricked}
+            isFoxsteps={!!isFoxsteps}
           />
         ))}
       </div>
@@ -788,6 +793,7 @@ function Chat() {
           generateBotResponse={
             isStream ? generateBotResponseSimple : generateBotResponse
           }
+          iconColor={isFoxsteps ? "#F4811F" : colorDefault}
         />
         <button onClick={handleClearClick} className="clear-btn cursor-pointer">
           <img

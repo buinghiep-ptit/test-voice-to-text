@@ -13,6 +13,7 @@ interface QueryModalProps {
   onSendQuery: (query: string) => void;
   data: QueryItem[];
   title: string;
+  primaryColor?: string;
 }
 
 const QueryModal: React.FC<QueryModalProps> = ({
@@ -21,6 +22,7 @@ const QueryModal: React.FC<QueryModalProps> = ({
   onSendQuery,
   data,
   title,
+  primaryColor,
 }) => {
   const [selectedItem, setSelectedItem] = useState<QueryItem | null>(null);
   const [inputValue, setInputValue] = useState("");
@@ -36,11 +38,22 @@ const QueryModal: React.FC<QueryModalProps> = ({
   }, [isOpen]);
 
   const handleItemClick = (item: QueryItem) => {
+    const hasInputPlaceholder = item.command.includes("{input}");
+
+    if (!hasInputPlaceholder) {
+      // Nếu không cần input, submit luôn
+      onSendQuery(item.command);
+      setSelectedItem(null);
+      setInputValue("");
+      onClose();
+      return;
+    }
+
     setSelectedItem(item);
     setInputValue("");
 
     setTimeout(() => {
-      if (item.command.includes("{input}") && inputRef.current) {
+      if (inputRef.current) {
         inputRef.current.focus();
       }
     }, 100);
@@ -68,6 +81,10 @@ const QueryModal: React.FC<QueryModalProps> = ({
     setInputValue("");
     onClose();
   };
+
+  const disabled =
+    !selectedItem ||
+    (selectedItem.command.includes("{input}") && !inputValue.trim());
 
   if (!isOpen) return null;
 
@@ -103,21 +120,41 @@ const QueryModal: React.FC<QueryModalProps> = ({
                   selectedItem?.id === item.id ? "selected" : ""
                 }`}
                 onClick={() => handleItemClick(item)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
               >
                 <div className="query-title">{item.title}</div>
-                {/* <div className="query-example">{item.example}</div> */}
+                <div className="query-item-arrow">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M9 18L15 12L9 6"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="modal-footer">
-          {selectedItem && selectedItem.command.includes("{input}") && (
+        {selectedItem && selectedItem.command.includes("{input}") && (
+          <div className="modal-footer">
             <input
               ref={inputRef}
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSubmit();
+                }
+              }}
               placeholder={
                 title === "Tra cứu hợp đồng" && selectedItem?.id === 11
                   ? "Nhập số CCCD/Hộ chiếu..."
@@ -126,18 +163,16 @@ const QueryModal: React.FC<QueryModalProps> = ({
               className="query-input"
               style={{ flex: 1, marginRight: 12 }}
             />
-          )}
-          <button
-            className="btn-submit"
-            onClick={handleSubmit}
-            disabled={
-              !selectedItem ||
-              (selectedItem.command.includes("{input}") && !inputValue.trim())
-            }
-          >
-            Gửi tra cứu
-          </button>
-        </div>
+            <button
+              className="btn-submit"
+              onClick={handleSubmit}
+              disabled={disabled}
+              style={{ backgroundColor: disabled ? "#d1d5db" : primaryColor }}
+            >
+              Gửi tra cứu
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

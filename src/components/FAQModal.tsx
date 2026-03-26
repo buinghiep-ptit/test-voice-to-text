@@ -136,6 +136,82 @@ const FAQModal: React.FC<FAQModalProps> = ({
     setSelectedQuestion(null);
   };
 
+  const renderAnswer = (content: string) => {
+    if (!content) return null;
+
+    // Heuristic to detect Markdown: headers, bold, italic, links, images, or tables
+    const isMarkdown = /#+\s|\*\*|__|\[.*\]\(.*\)|!\[.*\]\(.*\)|\|.*\|/.test(
+      content,
+    );
+
+    if (isMarkdown) {
+      return (
+        <div className="markdown-content">
+          <Markdown
+            remarkPlugins={[
+              remarkGfm,
+              [remarkMath, { singleDollarTextMath: false }],
+            ]}
+            rehypePlugins={[rehypeRaw, rehypeKatex]}
+            components={{
+              p: ({ node, ...props }) => (
+                <p
+                  {...props}
+                  style={{
+                    marginBottom: "8px",
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {props.children}
+                </p>
+              ),
+              ul: ({ node, ...props }) => (
+                <ul
+                  {...props}
+                  style={{
+                    marginLeft: "20px",
+                    marginBottom: "12px",
+                    listStyleType: "disc",
+                  }}
+                >
+                  {props.children}
+                </ul>
+              ),
+              li: ({ node, ...props }) => (
+                <li {...props} style={{ marginBottom: "4px" }}>
+                  {props.children}
+                </li>
+              ),
+              a: ({ node, ...props }) => (
+                <a
+                  {...props}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline hover:text-blue-800"
+                >
+                  {props.children}
+                </a>
+              ),
+              img: ({ node, ...props }) => (
+                <img
+                  {...props}
+                  className="max-w-full h-auto rounded-lg my-2"
+                  style={{ maxWidth: "100%" }}
+                />
+              ),
+            }}
+          >
+            {preprocessLaTeX(content)}
+          </Markdown>
+        </div>
+      );
+    }
+
+    // Default to plain text with preserved line breaks
+    return <div className="faq-answer-text">{content}</div>;
+  };
+
   if (!isOpen || !category) return null;
 
   return (
@@ -267,55 +343,7 @@ const FAQModal: React.FC<FAQModalProps> = ({
               <div className="faq-detail-title">
                 {selectedQuestion.question}
               </div>
-              <div className="markdown-content">
-                <Markdown
-                  remarkPlugins={[
-                    remarkGfm,
-                    [remarkMath, { singleDollarTextMath: false }],
-                  ]}
-                  rehypePlugins={[rehypeRaw, rehypeKatex]}
-                  unwrapDisallowed={false}
-                  components={{
-                    p: ({ node, ...props }) => {
-                      return (
-                        <p
-                          {...props}
-                          style={{
-                            whiteSpace: "pre-wrap",
-                            wordBreak: "break-word",
-                            marginBottom: "8px",
-                          }}
-                        >
-                          {props.children}
-                        </p>
-                      );
-                    },
-                    a: ({ node, ...props }) => {
-                      return (
-                        <a
-                          {...props}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 underline hover:text-blue-800 transition-all"
-                        >
-                          {props.children}
-                        </a>
-                      );
-                    },
-                    img: ({ node, ...props }) => {
-                      return (
-                        <img
-                          {...props}
-                          className="cursor-pointer max-w-full hover:opacity-90 transition-opacity"
-                          style={{ maxWidth: "100%" }}
-                        />
-                      );
-                    },
-                  }}
-                >
-                  {preprocessLaTeX(selectedQuestion.answer || "")}
-                </Markdown>
-              </div>
+              {renderAnswer(selectedQuestion.answer)}
             </div>
           </div>
         </>

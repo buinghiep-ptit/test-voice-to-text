@@ -10,6 +10,7 @@ interface TabBarProps {
   foxskill?: string | null;
   token?: string;
   isWebview?: string | null;
+  titleColor?: string;
 }
 
 interface ReactNativeWebViewWindow extends Window {
@@ -25,6 +26,7 @@ const TabBar: React.FC<TabBarProps> = ({
   foxskill,
   token,
   isWebview,
+  titleColor,
 }) => {
   const [dynamicCategories, setDynamicCategories] = useState<FAQCategory[]>([]);
   const [isFAQModalOpen, setIsFAQModalOpen] = useState(false);
@@ -180,7 +182,6 @@ const TabBar: React.FC<TabBarProps> = ({
             gap: "2px",
             fontWeight: 600,
             fontSize: "1rem",
-            color: "rgb(32, 59, 220)",
             transition: "background 0.2s, color 0.2s",
             borderRadius: 6,
           }}
@@ -188,7 +189,7 @@ const TabBar: React.FC<TabBarProps> = ({
           onClick={handleExpandClick}
           type="button"
         >
-          <span>Truy cập nhanh</span>
+          <span style={{ color: titleColor }}>Truy cập nhanh</span>
           <span
             style={{
               display: "flex",
@@ -200,7 +201,7 @@ const TabBar: React.FC<TabBarProps> = ({
             <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
               <path
                 d="M6 8L10 12L14 8"
-                stroke="#6c757d"
+                stroke={titleColor}
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"

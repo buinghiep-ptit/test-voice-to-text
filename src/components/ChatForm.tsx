@@ -1,8 +1,10 @@
 import { useRef, useState } from "react";
+import { SendIcon } from "./Icons";
 
 type Props = {
   setChatHistory: React.Dispatch<React.SetStateAction<IHistory[]>>;
   generateBotResponse: (h: IHistory) => void;
+  iconColor?: string;
 };
 
 export interface IHistory {
@@ -15,7 +17,11 @@ export interface IHistory {
   isFinal?: boolean;
 }
 
-const ChatForm = ({ setChatHistory, generateBotResponse }: Props) => {
+const ChatForm = ({
+  setChatHistory,
+  generateBotResponse,
+  iconColor,
+}: Props) => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const [isComposing, setIsComposing] = useState(false);
@@ -92,14 +98,11 @@ const ChatForm = ({ setChatHistory, generateBotResponse }: Props) => {
           onCompositionStart={handleCompositionStart}
           onCompositionEnd={handleCompositionEnd}
           required
+          style={{ caretColor: iconColor }}
         ></textarea>
         <div className="list-btns">
           <button className="btn-action" type="submit">
-            <img
-              src="/ai-agent/sdk/assets/images/send-icon.svg"
-              alt="ic"
-              className="w-6 h-6"
-            />
+            <SendIcon color={iconColor} className="w-6 h-6" />
           </button>
         </div>
       </form>
