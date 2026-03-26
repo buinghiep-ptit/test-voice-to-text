@@ -66,6 +66,49 @@
   cursor: grabbing;
 }
 
+/* Foxsteps Vertical List Styles */
+.foxsteps-vertical {
+  overflow: visible !important;
+}
+
+.foxsteps-list {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.foxsteps-list::-webkit-scrollbar {
+  display: none;
+}
+
+.foxsteps-item {
+  display: flex !important;
+  width: 100% !important;
+  text-align: left !important;
+  margin-right: 0 !important;
+  white-space: normal !important;
+  padding: 10px 16px !important;
+  background-color: #fff !important;
+  border: none !important;
+  border-radius: 10px !important;
+  color: #374151 !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  transition: all 0.2s ease !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.foxsteps-item:hover {
+  border-color: #f4811f !important;
+  color: #f4811f !important;
+  transform: translateY(-1px);
+}
+
+.foxsteps-item:active {
+  transform: translateY(0);
+}
+
 .tab-bar::-webkit-scrollbar {
   display: none;
 }

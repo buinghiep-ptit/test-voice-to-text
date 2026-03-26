@@ -689,6 +689,8 @@ function Chat() {
         token={userToken}
         isWebview={isWebview}
         titleColor={isFoxsteps ? "#F4811F" : colorDefault}
+        foxsteps={isFoxsteps}
+        onSendQuery={handleSendQuery}
       />
 
       {/* Query Modal */}
@@ -794,16 +796,22 @@ function Chat() {
             isStream ? generateBotResponseSimple : generateBotResponse
           }
           iconColor={isFoxsteps ? "#F4811F" : colorDefault}
+          foxsteps={!!isFoxsteps}
         />
-        <button onClick={handleClearClick} className="clear-btn cursor-pointer">
-          <img
-            src="/ai-agent/sdk/assets/images/clear-icon.png"
-            alt="ic"
-            className={`w-6 ${
-              chatHistory.length > 0 ? "" : "cursor-not-allowed"
-            }`}
-          />
-        </button>
+        {!isFoxsteps && (
+          <button
+            onClick={handleClearClick}
+            className="clear-btn cursor-pointer"
+          >
+            <img
+              src="/ai-agent/sdk/assets/images/clear-icon.png"
+              alt="ic"
+              className={`w-6 ${
+                chatHistory.length > 0 ? "" : "cursor-not-allowed"
+              }`}
+            />
+          </button>
+        )}
       </div>
 
       {isShowClearHistoryDialog && (

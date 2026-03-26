@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./TabBar.css";
 import FAQModal, { FAQCategory } from "./FAQModal";
+import { foxStepsFAQQueries } from "../data/queryData";
 
 interface TabBarProps {
   activeTab: string;
@@ -11,6 +12,8 @@ interface TabBarProps {
   token?: string;
   isWebview?: string | null;
   titleColor?: string;
+  foxsteps?: boolean;
+  onSendQuery?: (query: string) => void;
 }
 
 interface ReactNativeWebViewWindow extends Window {
@@ -27,6 +30,8 @@ const TabBar: React.FC<TabBarProps> = ({
   token,
   isWebview,
   titleColor,
+  foxsteps,
+  onSendQuery,
 }) => {
   const [dynamicCategories, setDynamicCategories] = useState<FAQCategory[]>([]);
   const [isFAQModalOpen, setIsFAQModalOpen] = useState(false);
@@ -60,23 +65,30 @@ const TabBar: React.FC<TabBarProps> = ({
       }
     };
 
-    if (token) {
+    if (token && !foxsteps) {
       fetchCategories();
     }
-  }, [token]);
+  }, [token, foxsteps]);
 
-  const tabs = [
-    ...(foxskill ? [{ id: "foxskill", label: "Học cùng Chang" }] : []),
-    { id: "info", label: "Tra cứu HĐ" },
-    { id: "service", label: "Tra cứu FPT Play" },
-    { id: "task", label: "Xử lý tác vụ" },
-    ...dynamicCategories.map((cat) => ({
-      id: `faq-${cat.id}`,
-      label: cat.name,
-      isDynamic: true,
-      data: cat,
-    })),
-  ];
+  const tabs = foxsteps
+    ? foxStepsFAQQueries.map((q) => ({
+        id: `foxsteps-${q.id}`,
+        label: q.title,
+        command: q.command,
+        isFoxsteps: true,
+      }))
+    : [
+        ...(foxskill ? [{ id: "foxskill", label: "Học cùng Chang" }] : []),
+        { id: "info", label: "Tra cứu HĐ" },
+        { id: "service", label: "Tra cứu FPT Play" },
+        { id: "task", label: "Xử lý tác vụ" },
+        ...dynamicCategories.map((cat) => ({
+          id: `faq-${cat.id}`,
+          label: cat.name,
+          isDynamic: true,
+          data: cat,
+        })),
+      ];
 
   const [isExpanded, setIsExpanded] = useState(true);
   const tabBarRef = useRef<HTMLDivElement>(null);
@@ -189,7 +201,9 @@ const TabBar: React.FC<TabBarProps> = ({
           onClick={handleExpandClick}
           type="button"
         >
-          <span style={{ color: titleColor }}>Truy cập nhanh</span>
+          <span style={{ color: titleColor }}>
+            {foxsteps ? "Tra cứu nhanh" : "Truy cập nhanh"}
+          </span>
           <span
             style={{
               display: "flex",
@@ -209,59 +223,92 @@ const TabBar: React.FC<TabBarProps> = ({
             </svg>
           </span>
         </button>
-        <div className="tab-bar-wrapper">
+        <div
+          className={`tab-bar-wrapper ${foxsteps ? "foxsteps-vertical" : ""}`}
+        >
           <div
             ref={tabBarRef}
-            className={`tab-bar tab-bar-expandable${
-              isExpanded ? " expanded" : " pb-0!"
-            }`}
-            onMouseDown={handleMouseDown}
-            onMouseLeave={handleMouseLeave}
-            onMouseUp={handleMouseUp}
-            onMouseMove={handleMouseMove}
-            onScroll={updateArrows}
+            className={`tab-bar tab-bar-expandable ${
+              foxsteps ? "foxsteps-list" : ""
+            } ${isExpanded ? " expanded" : " pb-0!"}`}
+            onMouseDown={foxsteps ? undefined : handleMouseDown}
+            onMouseLeave={foxsteps ? undefined : handleMouseLeave}
+            onMouseUp={foxsteps ? undefined : handleMouseUp}
+            onMouseMove={foxsteps ? undefined : handleMouseMove}
+            onScroll={foxsteps ? undefined : updateArrows}
             style={{
-              maxHeight: isExpanded ? 48 : 0,
+              maxHeight: isExpanded ? (foxsteps ? "none" : 48) : 0,
               opacity: isExpanded ? 1 : 0,
               pointerEvents: isExpanded ? "auto" : "none",
               transition:
                 "max-height 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.2s",
-              overflowX: "auto",
-              whiteSpace: "nowrap",
-              cursor: isDown.current ? "grabbing" : "pointer",
-              userSelect: isDown.current ? "none" : "auto",
+              overflowX: foxsteps ? "hidden" : "auto",
+              overflowY: foxsteps ? "visible" : "hidden",
+              whiteSpace: foxsteps ? "normal" : "nowrap",
+              cursor: !foxsteps && isDown.current ? "grabbing" : "pointer",
+              userSelect: !foxsteps && isDown.current ? "none" : "auto",
+              display: foxsteps ? "flex" : "block",
+              flexDirection: foxsteps ? "column" : "row",
+              gap: foxsteps ? "8px" : "0",
             }}
           >
             {tabs.map((tab) => (
               <button
                 key={tab.id}
-                className={`tab-item ${activeTab === tab.id ? "active" : ""}`}
+                className={`tab-item ${activeTab === tab.id ? "active" : ""} ${
+                  foxsteps ? "foxsteps-item" : ""
+                }`}
                 onClick={(e) => {
-                  if (isDragging.current) {
+                  if (!foxsteps && isDragging.current) {
                     e.preventDefault();
                     return;
                   }
                   if (tab.id === "foxskill") {
                     handleFoxskillTabClick();
+                  } else if ((tab as any).isFoxsteps) {
+                    onSendQuery?.((tab as any).command);
+                    if (foxsteps) {
+                      setIsExpanded(false);
+                    }
                   } else if ((tab as any).isDynamic) {
                     onTabChange(tab.id);
                     setSelectedCategory((tab as any).data);
                     setIsFAQModalOpen(true);
-                    // Do NOT call onTabClick to avoid opening the parent's generic modal
                   } else {
                     onTabChange(tab.id);
                     onTabClick(tab.id);
                   }
                 }}
                 style={{
-                  whiteSpace: "nowrap",
+                  whiteSpace: foxsteps ? "normal" : "nowrap",
+                  textAlign: foxsteps ? "left" : "center",
+                  width: foxsteps ? "100%" : "auto",
+                  display: foxsteps ? "flex" : "inline-block",
+                  alignItems: foxsteps ? "center" : "initial",
+                  justifyContent: foxsteps ? "space-between" : "initial",
                 }}
               >
-                {tab.label}
+                <span>{tab.label}</span>
+                {foxsteps && (
+                  <div
+                    className="query-item-arrow"
+                    style={{ marginLeft: "8px", flexShrink: 0 }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M9 18L15 12L9 6"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                )}
               </button>
             ))}
           </div>
-          {tabs.length > 2 && !isWebview && (
+          {!foxsteps && tabs.length > 2 && !isWebview && (
             <>
               {showLeftArrow && (
                 <div className="nav-arrow-container left">

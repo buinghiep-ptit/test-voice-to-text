@@ -139,10 +139,14 @@ const FAQModal: React.FC<FAQModalProps> = ({
   const renderAnswer = (content: string) => {
     if (!content) return null;
 
-    // Heuristic to detect Markdown: headers, bold, italic, links, images, or tables
-    const isMarkdown = /#+\s|\*\*|__|\[.*\]\(.*\)|!\[.*\]\(.*\)|\|.*\|/.test(
-      content,
-    );
+    // Normalize newlines to \n
+    const normalizedContent = content.replace(/\r\n/g, "\n");
+
+    // Heuristic to detect Markdown: headers, bold, italic, links, images, tables, or list markers
+    const isMarkdown =
+      /#+\s|\*\*|__|\[.*\]\(.*\)|!\[.*\]\(.*\)|\|.*\||^[\s]*[-*+]\s|^[\s]*[0-9]+\.\s|\n[\s]*[-*+]\s|\n[\s]*[0-9]+\.\s|\*.*\*|_.*_/.test(
+        normalizedContent,
+      );
 
     if (isMarkdown) {
       return (
@@ -170,7 +174,7 @@ const FAQModal: React.FC<FAQModalProps> = ({
                 <ul
                   {...props}
                   style={{
-                    marginLeft: "20px",
+                    marginLeft: "8px",
                     marginBottom: "12px",
                     listStyleType: "disc",
                   }}
@@ -179,7 +183,10 @@ const FAQModal: React.FC<FAQModalProps> = ({
                 </ul>
               ),
               li: ({ node, ...props }) => (
-                <li {...props} style={{ marginBottom: "4px" }}>
+                <li
+                  {...props}
+                  style={{ marginBottom: "4px", whiteSpace: "pre-wrap" }}
+                >
                   {props.children}
                 </li>
               ),
@@ -202,7 +209,7 @@ const FAQModal: React.FC<FAQModalProps> = ({
               ),
             }}
           >
-            {preprocessLaTeX(content)}
+            {preprocessLaTeX(normalizedContent.replace(/\n/g, "\n\n"))}
           </Markdown>
         </div>
       );

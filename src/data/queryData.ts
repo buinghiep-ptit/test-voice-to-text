@@ -169,3 +169,59 @@ export const taskQueries: QueryItem[] = [
     example: "Lấy QR hỗ trợ kỹ thuật HNH661487",
   },
 ];
+
+export const foxStepsFAQQueries: QueryItem[] = [
+  {
+    id: 1,
+    title: "Tại sao FoxSteps không ghi nhận bước chân?",
+    command: "Tại sao FoxSteps không ghi nhận bước chân?",
+    example: "Tại sao FoxSteps không ghi nhận bước chân?",
+  },
+  {
+    id: 2,
+    title:
+      "Dùng Garmin, smartwatch hoặc thiết bị khác có được tính bước không?",
+    command:
+      "Dùng Garmin, smartwatch hoặc thiết bị khác có được tính bước không?",
+    example:
+      "Dùng Garmin, smartwatch hoặc thiết bị khác có được tính bước không?",
+  },
+  {
+    id: 3,
+    title: "Làm sao kiểm tra số bước trong Apple Health hoặc Health Connect?",
+    command: "Làm sao kiểm tra số bước trong Apple Health hoặc Health Connect?",
+    example: "Làm sao kiểm tra số bước trong Apple Health hoặc Health Connect?",
+  },
+  {
+    id: 4,
+    title: "Làm sao để liên kết FoxSteps với Apple Health hoặc Health Connect?",
+    command:
+      "Làm sao để liên kết FoxSteps với Apple Health hoặc Health Connect?",
+    example:
+      "Làm sao để liên kết FoxSteps với Apple Health hoặc Health Connect?",
+  },
+  {
+    id: 5,
+    title: "Vì sao cần mở app FoxSteps?",
+    command: "Vì sao cần mở app FoxSteps?",
+    example: "Vì sao cần mở app FoxSteps?",
+  },
+  {
+    id: 6,
+    title: "Không mở app Foxsteps có đồng bộ được không?",
+    command: "Không mở app Foxsteps có đồng bộ được không?",
+    example: "Không mở app Foxsteps có đồng bộ được không?",
+  },
+  {
+    id: 7,
+    title: "Điện thoại Android cần cài đặt những gì để ghi nhận bước chân?",
+    command: "Điện thoại Android cần cài đặt những gì để ghi nhận bước chân?",
+    example: "Điện thoại Android cần cài đặt những gì để ghi nhận bước chân?",
+  },
+  {
+    id: 8,
+    title: "iPhone cần làm gì để FoxSteps ghi nhận bước chân?",
+    command: "iPhone cần làm gì để FoxSteps ghi nhận bước chân?",
+    example: "iPhone cần làm gì để FoxSteps ghi nhận bước chân?",
+  },
+];

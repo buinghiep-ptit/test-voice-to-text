@@ -5,6 +5,7 @@ type Props = {
   setChatHistory: React.Dispatch<React.SetStateAction<IHistory[]>>;
   generateBotResponse: (h: IHistory) => void;
   iconColor?: string;
+  foxsteps?: boolean;
 };
 
 export interface IHistory {
@@ -21,6 +22,7 @@ const ChatForm = ({
   setChatHistory,
   generateBotResponse,
   iconColor,
+  foxsteps,
 }: Props) => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -91,7 +93,9 @@ const ChatForm = ({
       <form action="#" className="" onSubmit={handleFormSubmit}>
         <textarea
           ref={inputRef}
-          placeholder="Trò chuyện cùng mình nhé..."
+          placeholder={
+            foxsteps ? "Nhập câu hỏi của bạn..." : "Trò chuyện cùng mình nhé..."
+          }
           className="outline-none w-full resize-none"
           onKeyDown={handleKeyDown}
           onChange={handleInputChange}
@@ -100,7 +104,10 @@ const ChatForm = ({
           required
           style={{ caretColor: iconColor }}
         ></textarea>
-        <div className="list-btns">
+        <div
+          className="list-btns"
+          style={{ right: foxsteps ? "24px" : "66px" }}
+        >
           <button className="btn-action" type="submit">
             <SendIcon color={iconColor} className="w-6 h-6" />
           </button>
