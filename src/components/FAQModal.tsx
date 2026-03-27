@@ -174,9 +174,7 @@ const FAQModal: React.FC<FAQModalProps> = ({
                 <ul
                   {...props}
                   style={{
-                    marginLeft: "8px",
                     marginBottom: "12px",
-                    listStyleType: "disc",
                   }}
                 >
                   {props.children}
