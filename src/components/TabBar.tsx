@@ -247,9 +247,9 @@ const TabBar: React.FC<TabBarProps> = ({
               whiteSpace: foxsteps ? "normal" : "nowrap",
               cursor: !foxsteps && isDown.current ? "grabbing" : "pointer",
               userSelect: !foxsteps && isDown.current ? "none" : "auto",
-              display: foxsteps ? "flex" : "block",
+              display: "flex",
               flexDirection: foxsteps ? "column" : "row",
-              gap: foxsteps ? "8px" : "0",
+              gap: "8px",
             }}
           >
             {tabs.map((tab) => (
