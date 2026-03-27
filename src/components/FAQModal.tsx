@@ -183,10 +183,7 @@ const FAQModal: React.FC<FAQModalProps> = ({
                 </ul>
               ),
               li: ({ node, ...props }) => (
-                <li
-                  {...props}
-                  style={{ marginBottom: "4px", whiteSpace: "pre-wrap" }}
-                >
+                <li {...props} style={{ marginBottom: "4px" }}>
                   {props.children}
                 </li>
               ),
