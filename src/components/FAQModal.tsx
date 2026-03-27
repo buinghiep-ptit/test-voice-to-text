@@ -209,7 +209,7 @@ const FAQModal: React.FC<FAQModalProps> = ({
               ),
             }}
           >
-            {preprocessLaTeX(normalizedContent.replace(/\n/g, "\n\n"))}
+            {preprocessLaTeX(content)}
           </Markdown>
         </div>
       );
