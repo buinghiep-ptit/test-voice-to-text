@@ -14,6 +14,7 @@ interface TabBarProps {
   titleColor?: string;
   foxsteps?: boolean;
   onSendQuery?: (query: string) => void;
+  collapseSignal?: number;
 }
 
 interface ReactNativeWebViewWindow extends Window {
@@ -32,6 +33,7 @@ const TabBar: React.FC<TabBarProps> = ({
   titleColor,
   foxsteps,
   onSendQuery,
+  collapseSignal,
 }) => {
   const [dynamicCategories, setDynamicCategories] = useState<FAQCategory[]>([]);
   const [isFAQModalOpen, setIsFAQModalOpen] = useState(false);
@@ -40,6 +42,12 @@ const TabBar: React.FC<TabBarProps> = ({
   );
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
+
+  useEffect(() => {
+    if (collapseSignal && foxsteps) {
+      setIsExpanded(false);
+    }
+  }, [collapseSignal, foxsteps]);
 
   useEffect(() => {
     const fetchCategories = async () => {

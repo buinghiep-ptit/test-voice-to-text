@@ -6,6 +6,7 @@ type Props = {
   generateBotResponse: (h: IHistory) => void;
   iconColor?: string;
   foxsteps?: boolean;
+  onSubmit?: () => void;
 };
 
 export interface IHistory {
@@ -23,6 +24,7 @@ const ChatForm = ({
   generateBotResponse,
   iconColor,
   foxsteps,
+  onSubmit,
 }: Props) => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -64,6 +66,9 @@ const ChatForm = ({
 
       generateBotResponse({ role: "Human", content: userMessage });
     }, 600);
+
+    // Notify parent that form was submitted
+    onSubmit?.();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

@@ -59,6 +59,7 @@ function Chat() {
   const [modalTitle, setModalTitle] = useState("Tra cứu hợp đồng");
   const [showCopiedToast, setShowCopiedToast] = useState(false);
   const [showBrickedToast, setShowBrickedToast] = useState(false);
+  const [collapseSignal, setCollapseSignal] = useState(0);
 
   const toggleMaximize = () => {
     const newState = !isMaximized;
@@ -597,6 +598,11 @@ function Chat() {
   };
 
   const handleSendQuery = (query: string) => {
+    // Thu gọn TabBar khi gửi query trong foxsteps mode
+    if (isFoxsteps) {
+      setCollapseSignal((prev) => prev + 1);
+    }
+
     // Thêm user message vào chat history (giống ChatForm)
     setChatHistory((prev) => [
       ...prev.map((h) => ({ ...h, isNewChat: false })),
@@ -691,6 +697,7 @@ function Chat() {
         titleColor={isFoxsteps ? "#F4811F" : colorDefault}
         foxsteps={isFoxsteps}
         onSendQuery={handleSendQuery}
+        collapseSignal={collapseSignal}
       />
 
       {/* Query Modal */}
@@ -797,6 +804,7 @@ function Chat() {
           }
           iconColor={isFoxsteps ? "#F4811F" : colorDefault}
           foxsteps={!!isFoxsteps}
+          onSubmit={() => setCollapseSignal((prev) => prev + 1)}
         />
         {!isFoxsteps && (
           <button

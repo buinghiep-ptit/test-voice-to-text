@@ -173,14 +173,13 @@ export const taskQueries: QueryItem[] = [
 export const foxStepsFAQQueries: QueryItem[] = [
   {
     id: 1,
-    title: "Tại sao FoxSteps không ghi nhận bước chân?",
+    title: "Chưa ghi nhận bước chân?",
     command: "Tại sao FoxSteps không ghi nhận bước chân?",
     example: "Tại sao FoxSteps không ghi nhận bước chân?",
   },
   {
     id: 2,
-    title:
-      "Dùng Garmin, smartwatch hoặc thiết bị khác có được tính bước không?",
+    title: "Kết nối đồng hồ, thiết bị",
     command:
       "Dùng Garmin, smartwatch hoặc thiết bị khác có được tính bước không?",
     example:
@@ -188,13 +187,13 @@ export const foxStepsFAQQueries: QueryItem[] = [
   },
   {
     id: 3,
-    title: "Làm sao kiểm tra số bước trong Apple Health hoặc Health Connect?",
+    title: "Cách kiểm tra bước trên điện thoại",
     command: "Làm sao kiểm tra số bước trong Apple Health hoặc Health Connect?",
     example: "Làm sao kiểm tra số bước trong Apple Health hoặc Health Connect?",
   },
   {
     id: 4,
-    title: "Làm sao để liên kết FoxSteps với Apple Health hoặc Health Connect?",
+    title: "Cách liên kết để ghi nhận bước",
     command:
       "Làm sao để liên kết FoxSteps với Apple Health hoặc Health Connect?",
     example:
@@ -203,24 +202,18 @@ export const foxStepsFAQQueries: QueryItem[] = [
   {
     id: 5,
     title: "Vì sao cần mở app FoxSteps?",
-    command: "Vì sao cần mở app FoxSteps?",
+    command: "Không mở app Foxsteps có đồng bộ được không?",
     example: "Vì sao cần mở app FoxSteps?",
   },
   {
     id: 6,
-    title: "Không mở app Foxsteps có đồng bộ được không?",
-    command: "Không mở app Foxsteps có đồng bộ được không?",
-    example: "Không mở app Foxsteps có đồng bộ được không?",
-  },
-  {
-    id: 7,
-    title: "Điện thoại Android cần cài đặt những gì để ghi nhận bước chân?",
+    title: "Cài đặt trên Android",
     command: "Điện thoại Android cần cài đặt những gì để ghi nhận bước chân?",
     example: "Điện thoại Android cần cài đặt những gì để ghi nhận bước chân?",
   },
   {
-    id: 8,
-    title: "iPhone cần làm gì để FoxSteps ghi nhận bước chân?",
+    id: 7,
+    title: "Cài đặt trên iPhone",
     command: "iPhone cần làm gì để FoxSteps ghi nhận bước chân?",
     example: "iPhone cần làm gì để FoxSteps ghi nhận bước chân?",
   },
