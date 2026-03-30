@@ -35,6 +35,7 @@ function Chat() {
   const [botInfo, setBotInfo] = useState({
     name: "Chang",
     avatar: "/ai-agent/sdk/assets/images/chang-avatar.jpg",
+    greeting: "",
   });
   const [loading, setLoading] = useState(false);
   const chatBodyRef = useRef<HTMLInputElement>(null);
@@ -774,10 +775,8 @@ function Chat() {
               alt="ic"
               className="w-8 h-8 rounded-full object-cover"
             />
-            <p className="message-text">
-              Hi 😄,
-              <br />
-              {botInfo?.name} có thể giúp gì cho bạn?
+            <p className="message-text whitespace-pre-line">
+              {botInfo.greeting}
             </p>
           </div>
         )}
