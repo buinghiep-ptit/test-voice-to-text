@@ -304,7 +304,14 @@ const TabBar: React.FC<TabBarProps> = ({
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                       <path
-                        d="M9 18L15 12L9 6"
+                        d="M9 10L4 15L9 20"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M4 15H16C18.2091 15 20 13.2091 20 11V4"
                         stroke="currentColor"
                         strokeWidth="2"
                         strokeLinecap="round"
