@@ -179,6 +179,12 @@ export const foxStepsFAQQueries: QueryItem[] = [
   },
   {
     id: 2,
+    title: "Strava không có số bước chân",
+    command: "Strava có hoạt động nhưng dữ liệu foxsteps không có số bước chân",
+    example: "Strava có hoạt động nhưng dữ liệu foxsteps không có số bước chân",
+  },
+  {
+    id: 3,
     title: "Kết nối đồng hồ, thiết bị",
     command:
       "Dùng Garmin, smartwatch hoặc thiết bị khác có được tính bước không?",
@@ -186,13 +192,13 @@ export const foxStepsFAQQueries: QueryItem[] = [
       "Dùng Garmin, smartwatch hoặc thiết bị khác có được tính bước không?",
   },
   {
-    id: 3,
+    id: 4,
     title: "Cách kiểm tra bước trên điện thoại",
     command: "Làm sao kiểm tra số bước trong Apple Health hoặc Health Connect?",
     example: "Làm sao kiểm tra số bước trong Apple Health hoặc Health Connect?",
   },
   {
-    id: 4,
+    id: 5,
     title: "Cách liên kết để ghi nhận bước",
     command:
       "Làm sao để liên kết FoxSteps với Apple Health hoặc Health Connect?",
@@ -200,19 +206,19 @@ export const foxStepsFAQQueries: QueryItem[] = [
       "Làm sao để liên kết FoxSteps với Apple Health hoặc Health Connect?",
   },
   {
-    id: 5,
+    id: 6,
     title: "Vì sao cần mở app FoxSteps?",
     command: "Không mở app Foxsteps có đồng bộ được không?",
     example: "Vì sao cần mở app FoxSteps?",
   },
   {
-    id: 6,
+    id: 7,
     title: "Cài đặt trên Android",
     command: "Điện thoại Android cần cài đặt những gì để ghi nhận bước chân?",
     example: "Điện thoại Android cần cài đặt những gì để ghi nhận bước chân?",
   },
   {
-    id: 7,
+    id: 8,
     title: "Cài đặt trên iPhone",
     command: "iPhone cần làm gì để FoxSteps ghi nhận bước chân?",
     example: "iPhone cần làm gì để FoxSteps ghi nhận bước chân?",
