@@ -34,7 +34,7 @@ function Chat() {
   const [userToken, setUserToken] = useState("");
   const [botInfo, setBotInfo] = useState({
     name: "Chang",
-    avatar: "/ai-agent/sdk/assets/images/chang-avatar.jpg",
+    avatar: "/assets/images/chang-avatar.jpg",
     greeting: "",
   });
   const [loading, setLoading] = useState(false);
@@ -666,8 +666,8 @@ function Chat() {
                 <img
                   src={
                     !isMaximized
-                      ? "/ai-agent/sdk/assets/images/arrows-big.png"
-                      : "/ai-agent/sdk/assets/images/arrows-small.png"
+                      ? "/assets/images/arrows-big.png"
+                      : "/assets/images/arrows-small.png"
                   }
                   alt={!isMaximized ? "Maximize" : "Minimize"}
                   className="w-6"
@@ -680,7 +680,7 @@ function Chat() {
 
             <button className="btn-icon cursor-pointer" onClick={closeChat}>
               <img
-                src="/ai-agent/sdk/assets/images/minimize_white.svg"
+                src="/assets/images/minimize_white.svg"
                 alt="ic"
                 className="w-6"
               />
@@ -769,10 +769,7 @@ function Chat() {
         {!chatHistory.length && !loading && (
           <div className="item-message bot-message">
             <img
-              src={
-                botInfo?.avatar ||
-                "/ai-agent/sdk/assets/images/chang-avatar.jpg"
-              }
+              src={botInfo?.avatar || "/assets/images/chang-avatar.jpg"}
               alt="ic"
               className="w-8 h-8 rounded-full object-cover"
             />
@@ -813,7 +810,7 @@ function Chat() {
             className="clear-btn cursor-pointer"
           >
             <img
-              src="/ai-agent/sdk/assets/images/clear-icon.png"
+              src="/assets/images/clear-icon.png"
               alt="ic"
               className={`w-6 ${
                 chatHistory.length > 0 ? "" : "cursor-not-allowed"

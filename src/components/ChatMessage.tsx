@@ -64,9 +64,7 @@ const ChatMessage = ({
           <SimpleStarLoading size={32} isFoxsteps={isFoxsteps} />
         ) : (
           <img
-            src={
-              botInfo?.avatar || "/ai-agent/sdk/assets/images/chang-avatar.jpg"
-            }
+            src={botInfo?.avatar || "/assets/images/chang-avatar.jpg"}
             alt="ic"
             className="w-8 h-8 rounded-full object-cover"
           />

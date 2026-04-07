@@ -12,7 +12,7 @@ function Bubble() {
         target: "chat-frame",
         isOpen: true,
       },
-      "*" // http://localhost:3000
+      "*", // http://localhost:3000
     );
   };
 
@@ -33,7 +33,7 @@ function Bubble() {
         </div>
       )}
       <img
-        src="/ai-agent/sdk/assets/images/chang-bubble-icon.webp"
+        src="/assets/images/chang-bubble-icon.webp"
         alt="ic"
         className="w-18 h-18 object-contain pointer-events-auto! cursor-pointer "
         onClick={openChat}

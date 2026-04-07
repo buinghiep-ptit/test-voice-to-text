@@ -108,6 +108,7 @@ const ChatForm = ({
 
   // ─── Mic toggle ───────────────────────────────────────────────────────────
   const handleMicrophoneClick = () => {
+    console.log("listening", listening);
     if (!browserSupportsSpeechRecognition) {
       alert("Trình duyệt của bạn không hỗ trợ nhận diện giọng nói");
       return;
@@ -116,6 +117,8 @@ const ChatForm = ({
     if (listening) {
       SpeechRecognition.stopListening();
     } else {
+      console.log("Starting speech recognition");
+
       // Chốt text hiện tại trước khi bật mic
       baseTextRef.current = inputRef.current?.value.trim() ?? "";
       resetTranscript();
