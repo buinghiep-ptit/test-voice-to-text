@@ -47,6 +47,7 @@ function Chat() {
   const isWebview = searchParams.get("isWebview");
   const isFoxskill = searchParams.get("foxskill");
   const isFoxsteps = searchParams.get("isFoxsteps") === "true";
+  const isVoiceChat = searchParams.get("isVoiceChat") === "true";
   const colorDefault = "rgb(26, 48, 180)";
 
   const decodeToken = tenantId ? decodeURIComponent(tenantId) : "";
@@ -803,6 +804,7 @@ function Chat() {
           }
           iconColor={isFoxsteps ? "#F4811F" : colorDefault}
           foxsteps={!!isFoxsteps}
+          isVoiceChat={!!isVoiceChat}
           onSubmit={() => setCollapseSignal((prev) => prev + 1)}
         />
         {!isFoxsteps && (

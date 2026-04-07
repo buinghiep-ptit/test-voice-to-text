@@ -515,7 +515,7 @@ body #root {
   display: flex;
   align-items: center;
   justify-content: center;
-  visibility: hidden;
+  /* visibility removed - button now always visible but disabled when no text */
 }
 
 .chat-footer .list-btns .btn-action,
@@ -527,10 +527,6 @@ body #root {
   height: 34px;
   border-radius: 0.5rem;
   cursor: pointer;
-}
-
-.chat-footer textarea:valid ~ .list-btns {
-  visibility: visible;
 }
 
 .chat-footer .list-btns .btn-action:hover,

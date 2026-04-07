@@ -10,6 +10,7 @@ type Props = {
   iconColor?: string;
   foxsteps?: boolean;
   onSubmit?: () => void;
+  isVoiceChat?: boolean;
 };
 
 export interface IHistory {
@@ -28,11 +29,13 @@ const ChatForm = ({
   iconColor,
   foxsteps,
   onSubmit,
+  isVoiceChat,
 }: Props) => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const baseTextRef = useRef<string>(""); // text gõ tay trước khi bật mic
 
   const [isComposing, setIsComposing] = useState(false);
+  const [hasText, setHasText] = useState(false);
 
   const {
     transcript,
@@ -50,6 +53,7 @@ const ChatForm = ({
       .join(" ");
 
     inputRef.current.value = combined;
+    setHasText(!!combined.trim());
     adjustTextareaHeight();
   }, [transcript, listening]);
 
@@ -135,6 +139,7 @@ const ChatForm = ({
     if (!listening && inputRef.current) {
       baseTextRef.current = inputRef.current.value;
     }
+    setHasText(!!inputRef.current?.value.trim());
     adjustTextareaHeight();
   };
 
@@ -161,7 +166,7 @@ const ChatForm = ({
         style={{ caretColor: iconColor }}
       />
 
-      {foxsteps && (
+      {isVoiceChat && (
         <button
           className="btn-action mic-btn"
           type="button"
@@ -196,7 +201,16 @@ const ChatForm = ({
           alignItems: "center",
         }}
       >
-        <button className="btn-action" type="submit">
+        <button
+          className="btn-action"
+          type="submit"
+          disabled={!hasText}
+          style={{
+            opacity: hasText ? 1 : 0.4,
+            cursor: hasText ? "pointer" : "not-allowed",
+            transition: "opacity 0.2s",
+          }}
+        >
           <SendIcon color={iconColor} className="w-6 h-6" />
         </button>
       </div>
