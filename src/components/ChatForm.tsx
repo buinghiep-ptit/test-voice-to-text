@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useRef, useState, useEffect } from "react";
 import { SendIcon, MicrophoneIcon } from "./Icons";
 
@@ -6,6 +7,7 @@ type Props = {
   generateBotResponse: (h: IHistory) => void;
   iconColor?: string;
   foxsteps?: boolean;
+  isVoiceChat?: boolean;
   onSubmit?: () => void;
 };
 
@@ -24,6 +26,7 @@ const ChatForm = ({
   generateBotResponse,
   iconColor,
   foxsteps,
+  // isVoiceChat,
   onSubmit,
 }: Props) => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
