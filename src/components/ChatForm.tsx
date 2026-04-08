@@ -1,8 +1,6 @@
-import { useRef, useState, useEffect } from "react";
-import { SendIcon, MicrophoneIcon } from "./Icons";
-import SpeechRecognition, {
-  useSpeechRecognition,
-} from "react-speech-recognition";
+import { useRef, useState } from "react";
+import { useSpeechInput } from "../hooks/useSpeechInput";
+import { MicrophoneIcon, SendIcon } from "./Icons";
 
 type Props = {
   setChatHistory: React.Dispatch<React.SetStateAction<IHistory[]>>;
@@ -31,58 +29,41 @@ const ChatForm = ({
   onSubmit,
   isVoiceChat,
 }: Props) => {
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-  const baseTextRef = useRef<string>(""); // text gõ tay trước khi bật mic
-
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isComposing, setIsComposing] = useState(false);
-  const [hasText, setHasText] = useState(false);
 
   const {
-    transcript,
+    inputValue,
+    setInputValue,
     listening,
-    resetTranscript,
+    startListening,
+    stopListening,
+    reset,
     browserSupportsSpeechRecognition,
-  } = useSpeechRecognition();
+  } = useSpeechInput();
 
-  // ─── Sync transcript → textarea realtime ─────────────────────────────────
-  useEffect(() => {
-    if (!listening || !inputRef.current) return;
+  const hasText = inputValue.trim().length > 0;
 
-    const combined = [baseTextRef.current, transcript]
-      .filter(Boolean)
-      .join(" ");
+  const handleMicrophoneClick = () => {
+    if (!browserSupportsSpeechRecognition) {
+      alert("Trình duyệt của bạn không hỗ trợ nhận diện giọng nói");
+      return;
+    }
+    if (listening) {
+      stopListening();
+    } else {
+      startListening(inputValue);
+    }
+  };
 
-    inputRef.current.value = combined;
-    setHasText(!!combined.trim());
-    adjustTextareaHeight();
-  }, [transcript, listening]);
-
-  // ─── Khi dừng mic: chốt text, KHÔNG resetTranscript ngay ─────────────────
-  useEffect(() => {
-    if (listening || !inputRef.current) return;
-
-    // Chốt toàn bộ text hiện tại làm base cho lần nói tiếp
-    baseTextRef.current = inputRef.current.value;
-    // Reset transcript SAU KHI đã chốt xong
-    resetTranscript();
-  }, [listening]);
-
-  // ─── Submit ───────────────────────────────────────────────────────────────
   const handleFormSubmit = (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault();
+    if (listening) stopListening();
 
-    if (listening) SpeechRecognition.stopListening();
-
-    const userMessage = inputRef.current?.value.trim();
+    const userMessage = inputValue.trim();
     if (!userMessage) return;
 
-    baseTextRef.current = "";
-    resetTranscript();
-
-    if (inputRef.current) {
-      inputRef.current.value = "";
-      inputRef.current.style.height = "46px";
-    }
+    reset();
 
     setChatHistory((history) => [
       ...history.map((h) => ({ ...h, isNewChat: false })),
@@ -106,28 +87,6 @@ const ChatForm = ({
     onSubmit?.();
   };
 
-  // ─── Mic toggle ───────────────────────────────────────────────────────────
-  const handleMicrophoneClick = () => {
-    if (!browserSupportsSpeechRecognition) {
-      alert("Trình duyệt của bạn không hỗ trợ nhận diện giọng nói");
-      return;
-    }
-
-    if (listening) {
-      SpeechRecognition.stopListening();
-    } else {
-      // Chốt text hiện tại trước khi bật mic
-      baseTextRef.current = inputRef.current?.value.trim() ?? "";
-      resetTranscript();
-
-      SpeechRecognition.startListening({
-        language: "vi-VN",
-        continuous: true, // không tự dừng
-        interimResults: true, // hiển thị realtime
-      });
-    }
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -135,16 +94,8 @@ const ChatForm = ({
     }
   };
 
-  const handleInputChange = () => {
-    if (!listening && inputRef.current) {
-      baseTextRef.current = inputRef.current.value;
-    }
-    setHasText(!!inputRef.current?.value.trim());
-    adjustTextareaHeight();
-  };
-
   const adjustTextareaHeight = () => {
-    const textarea = inputRef.current;
+    const textarea = textareaRef.current;
     if (!textarea) return;
     textarea.style.height = "46px";
     textarea.style.height = `${Math.min(textarea.scrollHeight, 88)}px`;
@@ -153,13 +104,19 @@ const ChatForm = ({
   return (
     <form action="#" onSubmit={handleFormSubmit}>
       <textarea
-        ref={inputRef}
+        ref={textareaRef}
+        value={inputValue}
         placeholder={
           foxsteps ? "Nhập câu hỏi của bạn..." : "Trò chuyện cùng mình nhé..."
         }
         className="outline-none w-full resize-none"
         onKeyDown={handleKeyDown}
-        onChange={handleInputChange}
+        onChange={(e) => {
+          if (!listening) {
+            setInputValue(e.target.value);
+            adjustTextareaHeight();
+          }
+        }}
         onCompositionStart={() => setIsComposing(true)}
         onCompositionEnd={() => setIsComposing(false)}
         required

@@ -12,8 +12,4 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: { port: PORT },
   preview: { port: PORT, host: true },
-  define: {
-    // Nếu vẫn lỗi, thử cách này
-    "globalThis.regeneratorRuntime": "regeneratorRuntime",
-  },
 });
